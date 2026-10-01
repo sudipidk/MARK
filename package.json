@@ -1,0 +1,14 @@
+{
+  "name": "mark",
+  "version": "1.0.0",
+  "description": "Mark Discord Bot",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "deploy": "node deploy-commands.js"
+  },
+  "dependencies": {
+    "discord.js": "^14.0.0",
+    "dotenv": "^16.4.0"
+  }
+}

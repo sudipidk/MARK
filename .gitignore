@@ -1,0 +1,4 @@
+node_modules
+.env
+/data/counting.json
+/data/counting.json.tmp

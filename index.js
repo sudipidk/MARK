@@ -160,4 +160,9 @@ client.on("messageCreate", message => {
     });
 });
 
+console.log("TOKEN EXISTS:", !!process.env.TOKEN);
+console.log("TOKEN LENGTH:", process.env.TOKEN?.length);
+console.log("TOKEN FIRST 5:", process.env.TOKEN?.slice(0, 5));
+console.log("TOKEN LAST 5:", process.env.TOKEN?.slice(-5));
+
 client.login(process.env.TOKEN);

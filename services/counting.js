@@ -1,9 +1,8 @@
 const fs = require("fs");
 const path = require("path");
+const { getDataDirectory } = require("./storage");
 
-const dataDirectory = process.env.COUNTING_DATA_DIR
-    ? path.resolve(process.env.COUNTING_DATA_DIR)
-    : path.join(__dirname, "..", "data");
+const dataDirectory = getDataDirectory();
 const dataPath = path.join(dataDirectory, "counting.json");
 
 function createServerData() {

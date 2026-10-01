@@ -23,26 +23,30 @@ for (const file of commandFiles) {
     commands.push(command.data.toJSON());
 }
 
-const rest = new REST({
-    version: "10"
-}).setToken(process.env.TOKEN);
-
 (async () => {
+    const token = process.env.TOKEN;
+    const clientId = process.env.CLIENT_ID;
+    const guildId = process.env.GUILD_ID;
+    if (!token || !clientId) {
+        console.error("Command deployment requires TOKEN and CLIENT_ID environment variables.");
+        process.exitCode = 1;
+        return;
+    }
+
+    const rest = new REST({ version: "10" }).setToken(token);
+    const route = guildId
+        ? Routes.applicationGuildCommands(clientId, guildId)
+        : Routes.applicationCommands(clientId);
+
     try {
-        console.log("Registering slash commands...");
-
-        await rest.put(
-            Routes.applicationGuildCommands(
-                process.env.CLIENT_ID,
-                process.env.GUILD_ID
-            ),
-            {
-                body: commands
-            }
-        );
-
-        console.log("Slash commands registered!");
+        console.log(`Registering ${commands.length} slash commands...`);
+        await rest.put(route, { body: commands });
+        console.log("Slash commands registered.");
     } catch (error) {
-        console.error(error);
+        console.error("Slash command deployment failed:", {
+            code: error.code || error.name,
+            status: error.status
+        });
+        process.exitCode = 1;
     }
 })();

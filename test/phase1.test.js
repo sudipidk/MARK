@@ -307,14 +307,50 @@ test("existing counting processing still advances, reacts, rejects duplicates, a
     try {
         process.env.BOT_DATA_DIR = dataDirectory;
         delete process.env.COUNTING_DATA_DIR;
+        const documents = new Map([["guild", {
+            channelId: "counting-channel",
+            currentCount: 16,
+            highestCount: 16
+        }]]);
         const countingPath = require.resolve("../services/counting");
         const eventsPath = require.resolve("../services/counting-events");
         delete require.cache[countingPath];
         delete require.cache[eventsPath];
-        const counting = require("../services/counting");
+        const originalLoad = Module._load;
+        Module._load = function(request, parent, isMain) {
+            if (request === "../db" && parent.filename === countingPath) {
+                return {
+                    getDB: () => ({
+                        collection: () => ({
+                            find: () => ({
+                                toArray: async () => Array.from(
+                                    documents,
+                                    ([_id, data]) => ({ _id, ...data })
+                                )
+                            }),
+                            updateOne: async ({ _id }, update) => {
+                                documents.set(_id, {
+                                    ...(documents.get(_id) || {}),
+                                    ...update.$set
+                                });
+                            }
+                        })
+                    })
+                };
+            }
+            return originalLoad.call(this, request, parent, isMain);
+        };
+        let counting;
+        try {
+            counting = require("../services/counting");
+        } finally {
+            Module._load = originalLoad;
+        }
         const { processCountingMessage, registerCountingEvents } =
             require("../services/counting-events");
-        counting.updateServerData("guild", data => {
+        await counting.initializeCountingData();
+        assert.equal(counting.getServerData("guild").currentCount, 16);
+        await counting.updateServerData("guild", data => {
             data.channelId = "counting-channel";
             data.currentCount = 17;
             data.cheatEnabled = true;
@@ -358,6 +394,7 @@ test("existing counting processing still advances, reacts, rejects duplicates, a
         assert.equal(rapidFirst.reactions[0], String.fromCodePoint(0x2705));
         assert.equal(rapidSecond.deleted, true);
         assert.equal(counting.getServerData("guild").currentCount, 19);
+        assert.equal(documents.get("guild").currentCount, 19);
     } finally {
         if (previousBotDataDir === undefined) delete process.env.BOT_DATA_DIR;
         else process.env.BOT_DATA_DIR = previousBotDataDir;
@@ -395,11 +432,76 @@ test("every existing and Phase 1 slash command loads with a unique schema", () =
     assert(names.has("timeoutes"));
 });
 
-test("bot bootstrap registers all commands and listeners without connecting to Discord", () => {
+test("counting JSON migration imports missing servers without replacing MongoDB data", async () => {
+    const dataDirectory = path.join(__dirname, `.phase1-migration-${process.pid}`);
+    const previousBotDataDir = process.env.BOT_DATA_DIR;
+    const previousCountingDataDir = process.env.COUNTING_DATA_DIR;
+    const existingDocument = { currentCount: 99 };
+    const documents = new Map([["existing", existingDocument]]);
+    const migrationPath = require.resolve("../migrate");
+    delete require.cache[migrationPath];
+
+    fs.mkdirSync(dataDirectory, { recursive: true });
+    fs.writeFileSync(path.join(dataDirectory, "counting.json"), JSON.stringify({
+        existing: { currentCount: 8 },
+        legacy: { currentCount: 12, highestCount: 12 }
+    }));
+    process.env.BOT_DATA_DIR = dataDirectory;
+    delete process.env.COUNTING_DATA_DIR;
+
+    const originalLoad = Module._load;
+    let disconnected = false;
+    Module._load = function(request, parent, isMain) {
+        if (request === "./db" && parent.filename === migrationPath) {
+            return {
+                connectDB: async () => {},
+                getDB: () => ({
+                    collection: () => ({
+                        bulkWrite: async operations => {
+                            for (const operation of operations) {
+                                const { filter, update } = operation.updateOne;
+                                if (!documents.has(filter._id)) {
+                                    documents.set(filter._id, update.$setOnInsert);
+                                }
+                            }
+                        }
+                    })
+                }),
+                closeDB: async () => { disconnected = true; }
+            };
+        }
+        return originalLoad.call(this, request, parent, isMain);
+    };
+
+    try {
+        const { migrateCountingData } = require("../migrate");
+        assert.equal(await migrateCountingData(), 2);
+        assert.deepEqual(documents.get("existing"), existingDocument);
+        assert.deepEqual(documents.get("legacy"), {
+            currentCount: 12,
+            highestCount: 12
+        });
+        assert.equal(disconnected, true);
+    } finally {
+        Module._load = originalLoad;
+        delete require.cache[migrationPath];
+        if (previousBotDataDir === undefined) delete process.env.BOT_DATA_DIR;
+        else process.env.BOT_DATA_DIR = previousBotDataDir;
+        if (previousCountingDataDir === undefined) delete process.env.COUNTING_DATA_DIR;
+        else process.env.COUNTING_DATA_DIR = previousCountingDataDir;
+        fs.unlinkSync(path.join(dataDirectory, "counting.json"));
+        fs.rmdirSync(dataDirectory);
+    }
+});
+
+test("bot bootstrap connects MongoDB before registering listeners and logging in", async () => {
     const discord = require("discord.js");
     const indexPath = path.join(__dirname, "..", "index.js");
     delete require.cache[indexPath];
     let client;
+    let databaseConnected = false;
+    let countingInitialized = false;
+    let loggedIn = false;
     class MockClient extends EventEmitter {
         constructor(options) {
             super();
@@ -409,12 +511,30 @@ test("bot bootstrap registers all commands and listeners without connecting to D
         }
 
         login() {
+            loggedIn = true;
             return Promise.resolve();
         }
     }
 
     const originalLoad = Module._load;
     Module._load = function(request, parent, isMain) {
+        if (parent.filename === indexPath && request === "./db") {
+            return { connectDB: async () => { databaseConnected = true; } };
+        }
+        if (parent.filename === indexPath && request === "./services/counting") {
+            return {
+                initializeCountingData: async () => {
+                    assert.equal(databaseConnected, true);
+                    countingInitialized = true;
+                }
+            };
+        }
+        if (parent.filename === indexPath && request === "./services/afk") {
+            return { initializeAfkStorage: async () => {} };
+        }
+        if (parent.filename === indexPath && request === "./services/reminder-storage") {
+            return { initializeReminderStorage: async () => {} };
+        }
         const loaded = originalLoad.call(this, request, parent, isMain);
         return request === "discord.js"
             ? { ...loaded, Client: MockClient }
@@ -423,13 +543,16 @@ test("bot bootstrap registers all commands and listeners without connecting to D
 
     try {
         require(indexPath);
+        await new Promise(resolve => setImmediate(resolve));
     } finally {
         Module._load = originalLoad;
         delete require.cache[indexPath];
     }
 
-    assert.equal(client.commands.size, 25);
+    assert.equal(client.commands.size, 29);
     assert(client.listenerCount("interactionCreate") > 0);
     assert(client.listenerCount("messageCreate") > 0);
     assert.equal(client.options.intents.includes(discord.GatewayIntentBits.GuildMembers), true);
+    assert.equal(countingInitialized, true);
+    assert.equal(loggedIn, true);
 });

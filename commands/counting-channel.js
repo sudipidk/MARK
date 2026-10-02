@@ -22,7 +22,7 @@ module.exports = {
         }
 
         const channel = interaction.options.getChannel("channel", true);
-        updateServerData(interaction.guildId, data => {
+        await updateServerData(interaction.guildId, data => {
             data.channelId = channel.id;
         });
 

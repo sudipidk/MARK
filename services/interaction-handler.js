@@ -1,5 +1,6 @@
 const { getUserFacingMessage } = require("./errors");
 const { handleSuggestionComponent } = require("./suggestions");
+const { handleReminderListComponent } = require("./reminder-list");
 
 function logInteractionError(interaction, error) {
     console.error("Interaction failed:", {
@@ -31,6 +32,9 @@ function registerInteractionHandler(client) {
             }
 
             if (interaction.isButton() || interaction.isModalSubmit()) {
+                if (interaction.isButton() && await handleReminderListComponent(interaction)) {
+                    return;
+                }
                 await handleSuggestionComponent(interaction);
             }
         } catch (error) {

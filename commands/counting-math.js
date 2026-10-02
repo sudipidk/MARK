@@ -25,7 +25,7 @@ module.exports = {
         }
 
         const enabled = interaction.options.getString("enabled", true) === "yes";
-        updateServerData(interaction.guildId, data => {
+        await updateServerData(interaction.guildId, data => {
             data.mathEnabled = enabled;
         });
 

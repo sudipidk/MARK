@@ -23,7 +23,7 @@ module.exports = {
         }
 
         const minutes = interaction.options.getInteger("minutes", true);
-        updateServerData(interaction.guildId, data => {
+        await updateServerData(interaction.guildId, data => {
             data.punishmentMinutes = minutes;
         });
 

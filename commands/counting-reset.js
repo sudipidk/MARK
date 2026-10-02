@@ -16,7 +16,7 @@ module.exports = {
             return;
         }
 
-        updateServerData(interaction.guildId, data => {
+        await updateServerData(interaction.guildId, data => {
             data.currentCount = 0;
             data.highestCount = 0;
             data.lastUserId = null;

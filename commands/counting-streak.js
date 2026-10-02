@@ -25,7 +25,7 @@ module.exports = {
         }
 
         const enabled = interaction.options.getString("mode", true) === "on";
-        updateServerData(interaction.guildId, data => {
+        await updateServerData(interaction.guildId, data => {
             data.streakEnabled = enabled;
         });
 

@@ -6,10 +6,12 @@
   "scripts": {
     "start": "node index.js",
     "deploy": "node deploy-commands.js",
+    "migrate:counting": "node migrate.js",
     "test": "node --test"
   },
   "dependencies": {
     "discord.js": "^14.0.0",
-    "dotenv": "^16.4.0"
+    "dotenv": "^16.6.1",
+    "mongodb": "^7.7.0"
   }
 }

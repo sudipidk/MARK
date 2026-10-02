@@ -3,11 +3,6 @@ const { getServerData, parseCount, updateServerData } = require("./counting");
 async function deleteCountingMessage(message) {
     try {
         await message.delete();
-        updateServerData(message.guildId, data => {
-            data.deletedByUser[message.author.id] =
-                (data.deletedByUser[message.author.id] || 0) + 1;
-        });
-        return true;
     } catch (error) {
         console.error("Failed to delete a counting-channel message:", {
             messageId: message.id,
@@ -15,6 +10,12 @@ async function deleteCountingMessage(message) {
         });
         return false;
     }
+
+    await updateServerData(message.guildId, data => {
+        data.deletedByUser[message.author.id] =
+            (data.deletedByUser[message.author.id] || 0) + 1;
+    });
+    return true;
 }
 
 async function punishCountingViolation(message, data) {
@@ -57,7 +58,7 @@ async function processCountingMessage(message) {
             return;
         }
 
-        updateServerData(message.guildId, serverData => {
+        await updateServerData(message.guildId, serverData => {
             serverData.currentCount = count.value;
             serverData.highestCount = Math.max(serverData.highestCount, count.value);
             serverData.lastUserId = message.author.id;
@@ -78,7 +79,7 @@ async function processCountingMessage(message) {
 
     await deleteCountingMessage(message);
     if (!data.cheatEnabled && count.value !== null && count.value > data.currentCount) {
-        updateServerData(message.guildId, serverData => {
+        await updateServerData(message.guildId, serverData => {
             serverData.currentCount = 0;
             serverData.lastUserId = null;
         });

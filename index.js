@@ -8,8 +8,16 @@ const {
 
 const fs = require("fs");
 const path = require("path");
+
+const { connectDB } = require("./db");
+const { initializeCountingData } = require("./services/counting");
+
 const { registerCountingEvents } = require("./services/counting-events");
 const { registerInteractionHandler } = require("./services/interaction-handler");
+const { initializeAfkStorage } = require("./services/afk");
+const { initializeReminderStorage } = require("./services/reminder-storage");
+const { startReminderScheduler } = require("./services/reminder-scheduler");
+const { registerAfkMessageEvents } = require("./services/afk-message-handler");
 
 const client = new Client({
     intents: [
@@ -36,9 +44,32 @@ for (const file of commandFiles) {
 
 client.once("ready", () => {
     console.log(`Logged in as ${client.user.tag}`);
+    startReminderScheduler(client);
 });
 
-registerInteractionHandler(client);
-registerCountingEvents(client);
+async function startBot() {
+    try {
+        // Connect to MongoDB first
+        await connectDB();
 
-client.login(process.env.TOKEN);
+        // Load counting data from MongoDB into memory
+        await initializeCountingData();
+        await initializeAfkStorage();
+        await initializeReminderStorage();
+
+        // Register bot event handlers
+        registerInteractionHandler(client);
+        registerCountingEvents(client);
+        registerAfkMessageEvents(client);
+
+        // Login to Discord
+        await client.login(process.env.TOKEN);
+    } catch (error) {
+        console.error("❌ Failed to start bot:", {
+            code: error.code || error.name
+        });
+        process.exit(1);
+    }
+}
+
+startBot();

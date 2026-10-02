@@ -6,16 +6,23 @@ let db;
 async function connectDB() {
     if (db) return db;
 
-    const uri = process.env.MONGODB_URI;
+    const uri = process.env.MONGODB_URI?.trim() || process.env.MONGO_URL?.trim();
     if (!uri) {
         throw new Error("MONGODB_URI is required to connect to MongoDB.");
     }
 
-    const mongoClient = new MongoClient(uri);
+    const mongoClient = new MongoClient(uri, {
+        connectTimeoutMS: 10_000,
+        serverSelectionTimeoutMS: 15_000
+    });
     try {
         await mongoClient.connect();
     } catch (error) {
-        await mongoClient.close();
+        try {
+            await mongoClient.close();
+        } catch {
+            // Preserve the original connection error for startup diagnostics.
+        }
         throw error;
     }
 

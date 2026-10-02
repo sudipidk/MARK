@@ -18,6 +18,10 @@ const { initializeAfkStorage } = require("./services/afk");
 const { initializeReminderStorage } = require("./services/reminder-storage");
 const { startReminderScheduler } = require("./services/reminder-scheduler");
 const { registerAfkMessageEvents } = require("./services/afk-message-handler");
+const {
+    getStartupConfig,
+    formatStartupError
+} = require("./services/startup-diagnostics");
 
 const client = new Client({
     intents: [
@@ -48,26 +52,42 @@ client.once("ready", () => {
 });
 
 async function startBot() {
+    let startupStage = "configuration";
     try {
+        const { token } = getStartupConfig();
+
         // Connect to MongoDB first
+        startupStage = "MongoDB connection";
         await connectDB();
 
         // Load counting data from MongoDB into memory
+        startupStage = "counting data initialization";
         await initializeCountingData();
+        startupStage = "AFK storage initialization";
         await initializeAfkStorage();
+        startupStage = "reminder storage initialization";
         await initializeReminderStorage();
 
         // Register bot event handlers
+        startupStage = "event registration";
         registerInteractionHandler(client);
         registerCountingEvents(client);
         registerAfkMessageEvents(client);
 
         // Login to Discord
-        await client.login(process.env.TOKEN);
+        startupStage = "Discord login";
+        await client.login(token);
     } catch (error) {
-        console.error("❌ Failed to start bot:", {
-            code: error.code || error.name
-        });
+        console.error(`❌ Failed during ${startupStage}:`, formatStartupError(error, [
+            process.env.TOKEN,
+            process.env.MONGODB_URI,
+            process.env.MONGO_URL
+        ]));
+        try {
+            await client.destroy();
+        } catch {
+            // Keep the startup failure as the primary error.
+        }
         process.exit(1);
     }
 }

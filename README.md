@@ -5,7 +5,7 @@ MARK is a general-purpose Discord bot. Commands are loaded from individual JavaS
 ## Setup
 
 1. Install dependencies with `npm install`.
-2. Configure `TOKEN`, `CLIENT_ID`, and `MONGODB_URI` in the environment (or a local `.env` file). `MONGODB_URI` must point to a MongoDB deployment accessible to the bot. `GUILD_ID` is optional: when present, commands deploy to that server for fast testing; otherwise, commands deploy globally.
+2. Configure `TOKEN`, `CLIENT_ID`, and `MONGODB_URI` in the environment (or a local `.env` file). On Railway, set these under the bot service's **Variables**; a Railway MongoDB service's `MONGO_URL` variable is also accepted as a connection-string fallback. The URI must point to a MongoDB deployment accessible to the bot. `GUILD_ID` is optional: when present, commands deploy to that server for fast testing; otherwise, commands deploy globally.
 3. Enable the **Message Content Intent** and **Server Members Intent** in the Discord Developer Portal. Message content is used by counting; the members intent supports accurate member cache information and active-timeout listings.
 4. Invite MARK with only the permissions needed for the features you use. These include View Channels/Send Messages/Embed Links for embeds and logs; Add Reactions/Manage Messages for counting; Kick Members, Ban Members, and Moderate Members for moderation; and Read Message History for timeout listing.
 5. If you have existing counting data in `data/counting.json`, run `npm run migrate:counting` once before starting the bot. The migration is safe to rerun and preserves any counting records already in MongoDB. Then register commands with `npm run deploy` and run `npm start`. Run `npm test` to execute the automated checks.

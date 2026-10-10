@@ -19,7 +19,7 @@ module.exports = Object.freeze({
         finePercent: 25,
         successPercentByGuards: [30, 25, 10, 5]
     },
-    coinflip: { minimumStake: 100, maximumStake: 100000, baseWinPercent: 50, totalWinMultiplier: 2 },
+    coinflip: { minimumStake: 1, baseWinPercent: 50, totalWinMultiplier: 2 },
     lottery: {
         ticketPrice: 1000,
         scheduleTimeZone: "Asia/Kathmandu",

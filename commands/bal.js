@@ -4,7 +4,7 @@ const { executeBalance } = require("../services/economy-commands");
 module.exports = {
     data: new SlashCommandBuilder()
         .setName("bal")
-        .setDescription("Show an economy wallet balance.")
+        .setDescription("Show a player's global economy wallet balance and equipped title.")
         .addUserOption(option => option.setName("user").setDescription("Member to check")),
     execute: executeBalance
 };

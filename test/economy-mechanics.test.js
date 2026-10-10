@@ -800,6 +800,138 @@ test("coinflip boost thresholds and double-stake payout are exact", () => {
     assert.equal(resolveCoinflip(63, 63, 100).won, false);
 });
 
+test("coinflip validates a chosen side, pays twice the wager, and records wins and losses", async () => {
+    const database = createMemoryDatabase();
+    const service = loadEconomyWithDatabase(database);
+    await service.ensureAccount("guild-one", "flipper");
+    await database.getDB().collection("economyAccounts").updateOne(
+        { _id: "flipper" },
+        { $set: { wallet: 5000 } }
+    );
+
+    for (const stake of [0, -1, 1.5, NaN, Infinity]) {
+        await assert.rejects(
+            service.coinflip({
+                guildId: "guild-one", userId: "flipper", stake, choice: "heads", operationId: `invalid-${stake}`
+            }),
+            UserFacingError
+        );
+    }
+    await assert.rejects(
+        service.coinflip({
+            guildId: "guild-one", userId: "flipper", stake: 1, choice: "coin", operationId: "invalid-choice"
+        }),
+        UserFacingError
+    );
+
+    const win = await service.coinflip({
+        guildId: "guild-one", userId: "flipper", stake: 500, choice: "heads",
+        operationId: "coinflip-win", random: () => 0
+    });
+    assert.deepEqual(
+        { won: win.won, choice: win.choice, result: win.result, payout: win.payout, balance: win.balance },
+        { won: true, choice: "heads", result: "heads", payout: 1000, balance: 5500 }
+    );
+    const loss = await service.coinflip({
+        guildId: "guild-two", userId: "flipper", stake: 200, choice: "heads",
+        operationId: "coinflip-loss", random: () => 99
+    });
+    assert.deepEqual(
+        { won: loss.won, choice: loss.choice, result: loss.result, payout: loss.payout, balance: loss.balance },
+        { won: false, choice: "heads", result: "tails", payout: 0, balance: 5300 }
+    );
+    const history = await service.listTransactions("guild-three", "flipper");
+    assert.equal(history.filter(transaction => transaction.type === "coinflip").length, 2);
+    const winRecord = history.find(transaction => transaction._id === "coinflip-win");
+    assert.equal(winRecord.balanceAfter, 5500);
+    assert.deepEqual(
+        { choice: winRecord.metadata.choice, result: winRecord.metadata.result },
+        { choice: "heads", result: "heads" }
+    );
+    await database.getDB().collection("economyAccounts").updateOne(
+        { _id: "flipper" },
+        { $set: { wallet: Number.MAX_SAFE_INTEGER } }
+    );
+    await assert.rejects(
+        service.coinflip({
+            guildId: "guild-one",
+            userId: "flipper",
+            stake: Number.MAX_SAFE_INTEGER,
+            choice: "heads",
+            operationId: "overflowing-payout",
+            random: () => 0
+        }),
+        UserFacingError
+    );
+    assert.equal(
+        (await service.getExistingAccount("guild-one", "flipper")).wallet,
+        Number.MAX_SAFE_INTEGER
+    );
+});
+
+test("coinflip wagers honor global luck boosts and process concurrent/retried wagers once", async () => {
+    const database = createMemoryDatabase();
+    const service = loadEconomyWithDatabase(database);
+    await service.ensureAccount("guild-one", "lucky-flipper");
+    await database.getDB().collection("economyAccounts").updateOne(
+        { _id: "lucky-flipper" },
+        { $set: { wallet: 1000 } }
+    );
+    await database.getDB().collection("economyEffects").insertOne({
+        _id: "lucky-flipper:luck",
+        userId: "lucky-flipper",
+        effectType: "coinflip-luck-i",
+        expiresAt: new Date(Date.now() + 60_000)
+    });
+    const boosted = await service.coinflip({
+        guildId: "guild-two",
+        userId: "lucky-flipper",
+        stake: 100,
+        choice: "tails",
+        operationId: "boosted-flip",
+        random: () => 55
+    });
+    assert.equal(boosted.winPercent, 56);
+    assert.equal(boosted.won, true);
+    assert.equal(boosted.result, "tails");
+
+    await database.getDB().collection("economyAccounts").updateOne(
+        { _id: "lucky-flipper" },
+        { $set: { wallet: 1000 } }
+    );
+    await database.getDB().collection("economyEffects").updateOne(
+        { _id: "lucky-flipper:luck" },
+        { $set: { expiresAt: new Date(Date.now() - 1000) } }
+    );
+    const wagers = await Promise.allSettled([
+        service.coinflip({
+            guildId: "guild-one", userId: "lucky-flipper", stake: 700, choice: "heads",
+            operationId: "concurrent-flip-one", random: () => 99
+        }),
+        service.coinflip({
+            guildId: "guild-two", userId: "lucky-flipper", stake: 700, choice: "heads",
+            operationId: "concurrent-flip-two", random: () => 99
+        })
+    ]);
+    assert.equal(wagers.filter(result => result.status === "fulfilled").length, 1);
+    assert.equal((await service.getExistingAccount("guild-three", "lucky-flipper")).wallet, 300);
+
+    const [first, retry] = await Promise.all([
+        service.coinflip({
+            guildId: "guild-one", userId: "lucky-flipper", stake: 100, choice: "tails",
+            operationId: "retry-flip", random: () => 99
+        }),
+        service.coinflip({
+            guildId: "guild-one", userId: "lucky-flipper", stake: 100, choice: "tails",
+            operationId: "retry-flip", random: () => 0
+        })
+    ]);
+    assert.deepEqual(retry, first);
+    assert.equal([...database.documents.values()].filter(document =>
+        document._id === "retry-flip" && document.type === "coinflip"
+    ).length, 1);
+});
+
 test("weekly stock and daily lottery periods switch at midnight Nepal Time", () => {
     const beforeMidnight = new Date("2026-10-11T18:14:59.000Z");
     const atMidnight = new Date("2026-10-11T18:15:00.000Z");

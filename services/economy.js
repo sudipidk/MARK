@@ -862,13 +862,13 @@ async function steal({ guildId, thiefId, targetId, operationId, random = randomI
     });
 }
 
-async function coinflip({ guildId, userId, stake, operationId, random = randomInt }) {
+async function coinflip({ guildId, userId, stake, choice, operationId, random = randomInt }) {
     if (!Number.isSafeInteger(stake) ||
-        stake < config.coinflip.minimumStake ||
-        stake > config.coinflip.maximumStake) {
-        throw new UserFacingError(
-            `Your stake must be a whole number from ${config.coinflip.minimumStake} to ${config.coinflip.maximumStake}.`
-        );
+        stake < config.coinflip.minimumStake) {
+        throw new UserFacingError(`Your wager must be a positive whole number of at least ${config.coinflip.minimumStake} coin.`);
+    }
+    if (choice !== "heads" && choice !== "tails") {
+        throw new UserFacingError("Choose either Heads or Tails before wagering.");
     }
     await ensureAccount(guildId, userId);
     const now = new Date();
@@ -898,6 +898,7 @@ async function coinflip({ guildId, userId, stake, operationId, random = randomIn
         );
         const { won, payout } = outcome;
         if (!Number.isSafeInteger(payout)) throw new UserFacingError("That stake is too large to resolve safely.");
+        const resultSide = won ? choice : choice === "heads" ? "tails" : "heads";
         assertSafeCredit(account.wallet - stake, payout);
         const updated = await collections.accounts.updateOne(
             {
@@ -928,10 +929,20 @@ async function coinflip({ guildId, userId, stake, operationId, random = randomIn
                 balanceBefore: account.wallet,
                 balanceAfter,
                 createdAt: now,
-                metadata: { stake, payout, net: payout - stake, winPercent, luckItem }
+                metadata: { stake, payout, net: payout - stake, choice, result: resultSide, winPercent, luckItem }
             }
         ), { session });
-        return { won, stake, payout, net: payout - stake, balance: balanceAfter, winPercent, luckItem };
+        return {
+            won,
+            choice,
+            result: resultSide,
+            stake,
+            payout,
+            net: payout - stake,
+            balance: balanceAfter,
+            winPercent,
+            luckItem
+        };
     });
 }
 

@@ -4,7 +4,7 @@ const { executeShop } = require("../services/economy-commands");
 module.exports = {
     data: new SlashCommandBuilder()
         .setName("shop")
-        .setDescription("Browse the shop, buy an item, or sell an unused item.")
+        .setDescription("Browse the global economy shop, buy an item, or sell an unused item.")
         .addSubcommand(command => command.setName("all").setDescription("Browse all shop categories."))
         .addSubcommand(command => command.setName("titles").setDescription("Browse available titles."))
         .addSubcommand(command => command.setName("consumables").setDescription("Browse boosts and bodyguards."))

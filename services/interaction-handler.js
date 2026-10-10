@@ -12,7 +12,13 @@ function logInteractionError(interaction, error) {
 async function replyWithError(interaction, error) {
     const content = getUserFacingMessage(error);
     try {
-        if (interaction.deferred || interaction.replied) {
+        if (interaction.deferred) {
+            await interaction.editReply({
+                content,
+                embeds: [],
+                allowedMentions: { parse: [] }
+            });
+        } else if (interaction.replied) {
             await interaction.followUp({ content, ephemeral: true });
         } else {
             await interaction.reply({ content, ephemeral: true });

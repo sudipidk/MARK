@@ -501,6 +501,7 @@ test("bot bootstrap connects MongoDB before registering listeners and logging in
     let client;
     let databaseConnected = false;
     let countingInitialized = false;
+    let economyInitialized = false;
     let loggedIn = false;
     class MockClient extends EventEmitter {
         constructor(options) {
@@ -529,6 +530,15 @@ test("bot bootstrap connects MongoDB before registering listeners and logging in
                 }
             };
         }
+        if (parent.filename === indexPath && request === "./services/economy") {
+            return {
+                initializeEconomyStorage: async () => {
+                    assert.equal(databaseConnected, true);
+                    economyInitialized = true;
+                },
+                startEconomyScheduler: async () => {}
+            };
+        }
         if (parent.filename === indexPath && request === "./services/afk") {
             return { initializeAfkStorage: async () => {} };
         }
@@ -549,10 +559,11 @@ test("bot bootstrap connects MongoDB before registering listeners and logging in
         delete require.cache[indexPath];
     }
 
-    assert.equal(client.commands.size, 29);
+    assert.equal(client.commands.size, 49);
     assert(client.listenerCount("interactionCreate") > 0);
     assert(client.listenerCount("messageCreate") > 0);
     assert.equal(client.options.intents.includes(discord.GatewayIntentBits.GuildMembers), true);
     assert.equal(countingInitialized, true);
+    assert.equal(economyInitialized, true);
     assert.equal(loggedIn, true);
 });

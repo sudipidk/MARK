@@ -1,6 +1,12 @@
 const { SlashCommandBuilder } = require("discord.js");
 const { getServerData } = require("../services/counting");
 
+async function getUsername(interaction, userId) {
+    const cachedUser = interaction.client.users.cache.get(userId);
+    const user = cachedUser || await interaction.client.users.fetch(userId);
+    return user.username;
+}
+
 module.exports = {
     data: new SlashCommandBuilder()
         .setName("counting-lb")
@@ -12,12 +18,13 @@ module.exports = {
             .slice(0, 5);
 
         const rows = leaders.length
-            ? leaders.map(([userId, count], index) =>
-                `${index + 1}. <@${userId}> — **${count}** valid counts`)
+            ? await Promise.all(leaders.map(async ([userId, count], index) =>
+                `${index + 1}. ${await getUsername(interaction, userId)} — **${count}** valid counts`))
             : ["No valid counts have been recorded yet."];
 
         await interaction.reply({
-            content: `**Counting leaderboard**\n${rows.join("\n")}`
+            content: `**Counting leaderboard**\n${rows.join("\n")}`,
+            allowedMentions: { parse: [] }
         });
     }
 };

@@ -40,6 +40,13 @@ function getDB() {
     return db;
 }
 
+function getClient() {
+    if (!client) {
+        throw new Error("MongoDB is not connected. Call connectDB() first.");
+    }
+    return client;
+}
+
 async function closeDB() {
     if (!client) return;
 
@@ -52,5 +59,6 @@ async function closeDB() {
 module.exports = {
     connectDB,
     getDB,
+    getClient,
     closeDB
 };

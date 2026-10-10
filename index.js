@@ -11,6 +11,7 @@ const path = require("path");
 
 const { connectDB } = require("./db");
 const { initializeCountingData } = require("./services/counting");
+const { initializeEconomyStorage, startEconomyScheduler } = require("./services/economy");
 
 const { registerCountingEvents } = require("./services/counting-events");
 const { registerInteractionHandler } = require("./services/interaction-handler");
@@ -49,6 +50,9 @@ for (const file of commandFiles) {
 client.once("ready", () => {
     console.log(`Logged in as ${client.user.tag}`);
     startReminderScheduler(client);
+    startEconomyScheduler().catch(error => {
+        console.error("❌ Economy scheduler failed to start:", { code: error.code || error.name });
+    });
 });
 
 async function startBot() {
@@ -63,6 +67,8 @@ async function startBot() {
         // Load counting data from MongoDB into memory
         startupStage = "counting data initialization";
         await initializeCountingData();
+        startupStage = "economy storage initialization";
+        await initializeEconomyStorage();
         startupStage = "AFK storage initialization";
         await initializeAfkStorage();
         startupStage = "reminder storage initialization";

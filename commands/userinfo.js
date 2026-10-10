@@ -1,5 +1,6 @@
 const { SlashCommandBuilder } = require("discord.js");
 const { createEmbed } = require("../services/embeds");
+const { getTitleAwareDisplayName } = require("../services/economy-format");
 
 function truncate(text, maxLength) {
     return text.length > maxLength ? `${text.slice(0, maxLength - 3)}...` : text;
@@ -30,6 +31,7 @@ module.exports = {
                 .sort((left, right) => right.position - left.position)
                 .map(role => role.toString())
             : [];
+        const displayName = await getTitleAwareDisplayName(interaction.guildId, user, member);
         const roleText = roles.length
             ? truncate(roles.slice(0, 15).join(", ") +
                 (roles.length > 15 ? `, and ${roles.length - 15} more` : ""), 1024)
@@ -39,7 +41,7 @@ module.exports = {
             .setThumbnail(avatar)
             .addFields(
                 { name: "Username", value: truncate(user.tag || user.username, 256), inline: true },
-                { name: "Display name", value: truncate(member?.displayName || user.globalName || user.username, 256), inline: true },
+                { name: "Display name", value: truncate(displayName, 256), inline: true },
                 { name: "User ID", value: user.id, inline: true },
                 { name: "Account created", value: `<t:${Math.floor(user.createdTimestamp / 1000)}:F>`, inline: true },
                 { name: "Server joined", value: member?.joinedTimestamp

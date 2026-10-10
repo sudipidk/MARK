@@ -6,6 +6,12 @@ function topEntry(records) {
         .sort((left, right) => right[1] - left[1])[0];
 }
 
+async function getUsername(interaction, userId) {
+    const cachedUser = interaction.client.users.cache.get(userId);
+    const user = cachedUser || await interaction.client.users.fetch(userId);
+    return user.username;
+}
+
 module.exports = {
     data: new SlashCommandBuilder()
         .setName("counting-stats")
@@ -19,6 +25,10 @@ module.exports = {
             .reduce((total, count) => total + count, 0);
         const topCounter = topEntry(data.countsByUser);
         const mostDeleted = topEntry(data.deletedByUser);
+        const [topCounterUsername, mostDeletedUsername] = await Promise.all([
+            topCounter ? getUsername(interaction, topCounter[0]) : null,
+            mostDeleted ? getUsername(interaction, mostDeleted[0]) : null
+        ]);
 
         await interaction.reply({
             content: [
@@ -27,13 +37,14 @@ module.exports = {
                 `Highest count: **${data.highestCount}**`,
                 `Total valid counts: **${validCounts}**`,
                 `Total messages deleted: **${deletedMessages}**`,
-                `Top counter: ${topCounter ? `<@${topCounter[0]}> (${topCounter[1]} counts)` : "None yet"}`,
-                `Most messages deleted: ${mostDeleted ? `<@${mostDeleted[0]}> (${mostDeleted[1]} messages)` : "None yet"}`,
+                `Top counter: ${topCounter ? `${topCounterUsername} (${topCounter[1]} counts)` : "None yet"}`,
+                `Most messages deleted: ${mostDeleted ? `${mostDeletedUsername} (${mostDeleted[1]} messages)` : "None yet"}`,
                 `Counting channel: ${data.channelId ? `<#${data.channelId}>` : "Not configured"}`,
                 `Math: **${data.mathEnabled ? "on" : "off"}** | Cheat mode: **${data.cheatEnabled ? "on" : "off"}**`,
                 `Streak protection: **${data.streakEnabled ? "on" : "off"}** | Talk: **${data.talkEnabled ? "on" : "off"}**`,
                 `Violation timeout: **${data.punishmentMinutes ? `${data.punishmentMinutes} minutes` : "off"}**`
-            ].join("\n")
+            ].join("\n"),
+            allowedMentions: { parse: [] }
         });
     }
 };

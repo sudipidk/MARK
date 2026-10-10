@@ -410,6 +410,14 @@ async function migrateLegacyEconomyData(collections = getCollections()) {
 async function initializeEconomyStorage() {
     const collections = getCollections();
     await migrateLegacyEconomyData(collections);
+    const titleIndexes = await collections.titles.listIndexes().toArray();
+    const obsoleteTitleIndex = titleIndexes.find(index =>
+        JSON.stringify(index.key) === JSON.stringify({ userId: 1, titleId: 1 }) &&
+        index.partialFilterExpression?.variantCode?.$exists === false
+    );
+    if (obsoleteTitleIndex) {
+        await collections.titles.dropIndex(obsoleteTitleIndex.name);
+    }
     await Promise.all([
         collections.accounts.createIndex({ userId: 1 }, { unique: true }),
         collections.accounts.createIndex({ wallet: -1, userId: 1 }),
@@ -418,8 +426,8 @@ async function initializeEconomyStorage() {
         collections.transactions.createIndex({ idempotencyKey: 1 }, { unique: true }),
         collections.inventory.createIndex({ userId: 1, itemId: 1 }, { unique: true }),
         collections.titles.createIndex(
-            { userId: 1, titleId: 1 },
-            { unique: true, partialFilterExpression: { variantCode: { $exists: false } } }
+            { userId: 1, titleId: 1, variantCode: 1 },
+            { unique: true, name: "userId_1_titleId_1_variantCode_1" }
         ),
         collections.titles.createIndex({ variantCode: 1 }, { unique: true, sparse: true }),
         collections.titles.createIndex({ userId: 1, purchasedAt: 1 }),

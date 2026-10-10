@@ -57,13 +57,32 @@ function applyUpdate(document, update, inserting = false) {
 
 function createMemoryDatabase() {
     const collections = new Map();
+    const indexes = new Map();
     let queue = Promise.resolve();
     let failedInsertCollection = null;
     function getCollection(name) {
         if (!collections.has(name)) collections.set(name, new Map());
+        if (!indexes.has(name)) indexes.set(name, new Map());
         const documents = collections.get(name);
+        const collectionIndexes = indexes.get(name);
         return {
-            async createIndex() {},
+            async createIndex(key, options = {}) {
+                const indexName = options.name || Object.entries(key)
+                    .map(([field, direction]) => `${field}_${direction}`).join("_");
+                collectionIndexes.set(indexName, { name: indexName, key: structuredClone(key), ...structuredClone(options) });
+                return indexName;
+            },
+            listIndexes() {
+                return { async toArray() { return structuredClone([...collectionIndexes.values()]); } };
+            },
+            async dropIndex(indexName) {
+                if (!collectionIndexes.delete(indexName)) {
+                    const error = new Error(`index not found: ${indexName}`);
+                    error.code = 27;
+                    throw error;
+                }
+                return { ok: 1 };
+            },
             async insertOne(document) {
                 if (failedInsertCollection === name) {
                     failedInsertCollection = null;
@@ -170,6 +189,13 @@ function createMemoryDatabase() {
         }
     }
     const database = {
+        addIndex(collectionName, index) {
+            if (!indexes.has(collectionName)) indexes.set(collectionName, new Map());
+            indexes.get(collectionName).set(index.name, structuredClone(index));
+        },
+        getIndexes(collectionName) {
+            return [...(indexes.get(collectionName)?.values() || [])].map(index => structuredClone(index));
+        },
         failNextInsertFor(name) {
             failedInsertCollection = name;
         },
@@ -653,6 +679,12 @@ test("titles remain owned, equip independently, and can be sold only when eligib
     await service.buyItem({
         guildId: "guild", userId: "collector", itemInput: "phantom", operationId: "buy-phantom"
     });
+    await assert.rejects(
+        service.buyItem({
+            guildId: "guild", userId: "collector", itemInput: "phantom", operationId: "buy-phantom-again"
+        }),
+        UserFacingError
+    );
     await service.equipTitle({
         guildId: "guild", userId: "collector", titleInput: "phantom", operationId: "equip-phantom"
     });
@@ -672,6 +704,57 @@ test("titles remain owned, equip independently, and can be sold only when eligib
         }),
         UserFacingError
     );
+});
+
+test("title indexes migrate the obsolete partial index and allow multiple unique Variant titles", async () => {
+    const database = createMemoryDatabase();
+    database.addIndex("economyTitles", {
+        name: "userId_1_titleId_1",
+        key: { userId: 1, titleId: 1 },
+        unique: true,
+        partialFilterExpression: { variantCode: { $exists: false } }
+    });
+    database.addIndex("economyTitles", {
+        name: "unrelated_title_index",
+        key: { purchasedAt: 1 }
+    });
+    const service = loadEconomyWithDatabase(database);
+
+    await service.initializeEconomyStorage();
+    await service.initializeEconomyStorage();
+
+    const indexes = database.getIndexes("economyTitles");
+    assert.equal(indexes.some(index => index.name === "userId_1_titleId_1"), false);
+    assert.equal(indexes.some(index => index.name === "unrelated_title_index"), true);
+    const ownershipIndex = indexes.find(index => index.name === "userId_1_titleId_1_variantCode_1");
+    assert.deepEqual(ownershipIndex.key, { userId: 1, titleId: 1, variantCode: 1 });
+    assert.equal(ownershipIndex.unique, true);
+    assert.equal(ownershipIndex.partialFilterExpression, undefined);
+
+    await service.ensureAccount("guild", "variant-collector");
+    await database.getDB().collection("economyAccounts").updateOne(
+        { _id: "variant-collector" },
+        { $set: { wallet: 2000000 } }
+    );
+    await service.buyItem({
+        guildId: "guild-one",
+        userId: "variant-collector",
+        itemInput: "variant",
+        operationId: "buy-variant-one"
+    });
+    await service.buyItem({
+        guildId: "guild-two",
+        userId: "variant-collector",
+        itemInput: "variant",
+        operationId: "buy-variant-two"
+    });
+    const variants = await database.getDB().collection("economyTitles").find({
+        userId: "variant-collector",
+        titleId: "variant"
+    }).toArray();
+    assert.equal(variants.length, 2);
+    assert.notEqual(variants[0].variantCode, variants[1].variantCode);
+    assert(variants.every(title => /^[A-Z0-9]{5}$/.test(title.variantCode)));
 });
 
 test("Variant codes are five uppercase alphanumeric characters from an injectable generator", () => {

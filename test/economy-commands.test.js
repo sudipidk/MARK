@@ -33,7 +33,7 @@ function loadEconomyCommands(economy) {
     }
 }
 
-function createInteraction({ userId = "user", subcommand = null, amount = null, choice = null, item = null } = {}) {
+function createInteraction({ userId = "user", subcommand = null, amount = null, choice = null, item = null, page = null } = {}) {
     const user = { id: userId, username: "TestUser", globalName: "Test User", bot: false };
     const member = {
         user,
@@ -61,7 +61,7 @@ function createInteraction({ userId = "user", subcommand = null, amount = null, 
         },
         options: {
             getSubcommand: () => subcommand,
-            getInteger: name => name === "amount" ? amount : null,
+            getInteger: name => name === "amount" ? amount : name === "page" ? page : null,
             getString: name => name === "choice" ? choice : name === "item" ? item : null,
             getUser: () => null
         },
@@ -88,15 +88,15 @@ function createInteraction({ userId = "user", subcommand = null, amount = null, 
     return { interaction, calls, member };
 }
 
-test("coinflip command requires Heads/Tails and a positive whole-number amount without a hard cap", () => {
+test("coinflip command requires Heads/Tails and a compact wager string without a hard cap", () => {
     const command = require("../commands/cf");
     const options = command.data.toJSON().options;
     assert.equal(options[0].name, "choice");
     assert.equal(options[0].required, true);
     assert.deepEqual(options[0].choices.map(choice => choice.value), ["heads", "tails"]);
     assert.equal(options[1].name, "amount");
+    assert.equal(options[1].type, 3);
     assert.equal(options[1].required, true);
-    assert.equal(options[1].min_value, 1);
     assert.equal(options[1].max_value, undefined);
 });
 
@@ -146,7 +146,7 @@ test("coinflip invalid amounts are rejected before the economy wager call", asyn
     assert.equal(called, false);
 });
 
-test("shop embed lists real catalog IDs, prices, stock, and command-compatible purchase syntax publicly", async () => {
+test("shop pages list every real catalog ID, price, stock, and command-compatible purchase syntax publicly", async () => {
     const handlers = loadEconomyCommands({
         ensureAccount: async () => {},
         getAccount: async () => ({}),
@@ -156,23 +156,29 @@ test("shop embed lists real catalog IDs, prices, stock, and command-compatible p
             stock: item.weeklyStock ? { available: item.weeklyStock } : null
         }))
     });
-    const { interaction, calls } = createInteraction({ subcommand: "all" });
-    await handlers.executeShop(interaction);
-    assert.equal(calls.deferred[0].ephemeral, false);
-    const embed = calls.replies[0].embeds[0].toJSON();
-    assert.equal(embed.title, "MARK Economy Shop");
-    assert.match(embed.description, /\/shop buy item:<ID>/);
+    const fields = [];
+    const pageCount = Math.ceil(catalog.length / 8);
+    for (let page = 1; page <= pageCount; page += 1) {
+        const { interaction, calls } = createInteraction({ subcommand: "all", page });
+        await handlers.executeShop(interaction);
+        assert.equal(calls.deferred[0].ephemeral, false);
+        const embed = calls.replies[0].embeds[0].toJSON();
+        assert.equal(embed.title, "MARK Economy Shop");
+        assert.match(embed.description, /\/shop buy item:<ID>/);
+        assert(embed.fields.length <= 25);
+        assert(embed.fields.every(field => field.value.length <= 1024));
+        assert(embedLength(embed) <= 6000);
+        fields.push(...embed.fields);
+    }
     for (const item of catalog) {
-        const field = embed.fields.find(candidate => candidate.name === `${item.name} (${item.id})`);
+        const field = fields.find(candidate => candidate.name === `${item.name} (${item.id})`);
         assert(field, `missing shop listing for ${item.id}`);
         assert.match(field.value, new RegExp(`\\/shop buy item:${item.id.replace(/[.*+?^${}()|[\\]\\\\]/g, "\\$&")}`));
         assert.match(field.value, new RegExp(formatPrice(item.price)));
     }
-    assert(embed.fields.some(field => field.name === "Boosts"));
-    assert(embed.fields.some(field => field.name === "Bodyguards"));
-    assert(embed.fields.some(field => field.name === "Titles"));
-    assert(embed.fields.every(field => field.value.length <= 1024));
-    assert(embedLength(embed) <= 6000);
+    assert(fields.some(field => field.name === "Boosts"));
+    assert(fields.some(field => field.name === "Bodyguards"));
+    assert(fields.some(field => field.name === "Titles"));
 });
 
 function formatPrice(price) {
@@ -191,7 +197,7 @@ test("transaction history is private while public economy commands use public de
     assert.equal(calls.replies[0].ephemeral, undefined);
 });
 
-test("balance embed shows wallet and title without inventing a bank balance", async () => {
+test("balance embed shows wallet, bank, combined wealth, and equipped title", async () => {
     const handlers = loadEconomyCommands({
         ensureAccount: async () => {},
         getAccount: async () => ({
@@ -199,6 +205,7 @@ test("balance embed shows wallet and title without inventing a bank balance", as
             equippedTitleId: "phantom",
             equippedVariantCode: null
         }),
+        getBankSummary: async () => ({ balance: 5000, combinedWealth: 17345 }),
         getCatalogItem
     });
     const { interaction, calls, member } = createInteraction();
@@ -207,8 +214,9 @@ test("balance embed shows wallet and title without inventing a bank balance", as
     assert.equal(embed.author.name, member.displayName);
     assert.equal(embed.author.icon_url, member.displayAvatarURL());
     assert.match(embed.fields.find(field => field.name === "Wallet").value, /12,345 coins/);
+    assert.match(embed.fields.find(field => field.name === "Bank").value, /5,000 coins/);
+    assert.match(embed.fields.find(field => field.name === "Combined wealth").value, /17,345 coins/);
     assert.match(embed.fields.find(field => field.name === "Equipped title").value, /Phantom.*Common/);
-    assert.equal(embed.fields.some(field => /bank/i.test(field.name)), false);
 });
 
 test("profile handles empty and populated accounts, including global effects and stats", async () => {
@@ -222,6 +230,16 @@ test("profile handles empty and populated accounts, including global effects and
     const handlers = loadEconomyCommands({
         ensureAccount: async () => {},
         getProfile: async () => profile,
+        getAchievementSummary: async () => ({
+            earnedCount: 0,
+            total: 41,
+            completionPercent: 0,
+            unlocked: [],
+            recent: [],
+            strongest: [],
+            progress: {},
+            completionTagUnlocked: false
+        }),
         getCatalogItem
     });
     const empty = createInteraction();

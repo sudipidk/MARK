@@ -5,9 +5,18 @@ module.exports = {
     data: new SlashCommandBuilder()
         .setName("shop")
         .setDescription("Browse the global economy shop, buy an item, or sell an unused item.")
-        .addSubcommand(command => command.setName("all").setDescription("Browse all shop categories."))
-        .addSubcommand(command => command.setName("titles").setDescription("Browse available titles."))
-        .addSubcommand(command => command.setName("consumables").setDescription("Browse boosts and bodyguards."))
+        .addSubcommand(command => command
+            .setName("all")
+            .setDescription("Browse all shop categories.")
+            .addIntegerOption(option => option.setName("page").setDescription("Shop page").setMinValue(1)))
+        .addSubcommand(command => command
+            .setName("titles")
+            .setDescription("Browse available titles.")
+            .addIntegerOption(option => option.setName("page").setDescription("Shop page").setMinValue(1)))
+        .addSubcommand(command => command
+            .setName("consumables")
+            .setDescription("Browse boosts and bodyguards.")
+            .addIntegerOption(option => option.setName("page").setDescription("Shop page").setMinValue(1)))
         .addSubcommand(command => command
             .setName("buy")
             .setDescription("Buy an item.")

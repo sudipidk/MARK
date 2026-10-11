@@ -559,7 +559,7 @@ test("bot bootstrap connects MongoDB before registering listeners and logging in
         delete require.cache[indexPath];
     }
 
-    assert.equal(client.commands.size, 49);
+    assert.equal(client.commands.size, 60);
     assert(client.listenerCount("interactionCreate") > 0);
     assert(client.listenerCount("messageCreate") > 0);
     assert.equal(client.options.intents.includes(discord.GatewayIntentBits.GuildMembers), true);

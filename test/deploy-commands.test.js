@@ -49,4 +49,15 @@ test("all project slash commands are available in the deployment payload", () =>
     assert(names.has("reminder"));
     assert(names.has("counting-channel"));
     assert(names.has("suggestion"));
+    assert(names.has("bank"));
+    assert(names.has("bankfunds"));
+    assert(names.has("deposit"));
+    assert(names.has("withdraw"));
+    assert(names.has("achievements"));
+    assert(names.has("help"));
+    assert(names.has("addmoney"));
+    assert(names.has("removemoney"));
+    assert(names.has("setmoney"));
+    assert(names.has("reset"));
+    assert(names.has("resetall"));
 });

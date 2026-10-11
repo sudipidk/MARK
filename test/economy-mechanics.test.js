@@ -391,6 +391,51 @@ test("legacy per-guild records migrate with a documented balance-preserving merg
     delete require.cache[resolved];
 });
 
+test("Avenger ownership migrates without duplicate Ones Above All ownership or lost archive data", async () => {
+    const database = createMemoryDatabase();
+    const service = loadEconomyWithDatabase(database);
+    const titles = database.getDB().collection("economyTitles");
+    const accounts = database.getDB().collection("economyAccounts");
+    await titles.insertOne({
+        _id: "legacy-avenger-user",
+        userId: "legacy-user",
+        titleId: "avenger",
+        purchasedAt: new Date("2025-01-01T00:00:00Z")
+    });
+    await titles.insertOne({
+        _id: "legacy-avenger-duplicate",
+        userId: "duplicate-user",
+        titleId: "avenger",
+        purchasedAt: new Date("2025-01-01T00:00:00Z")
+    });
+    await titles.insertOne({
+        _id: "current-ones-above-all",
+        userId: "duplicate-user",
+        titleId: "ones-above-all",
+        purchasedAt: new Date("2026-01-01T00:00:00Z")
+    });
+    await accounts.insertOne({
+        _id: "legacy-user",
+        userId: "legacy-user",
+        bot: false,
+        wallet: 1000,
+        equippedTitleId: "avenger",
+        createdAt: new Date("2025-01-01T00:00:00Z"),
+        stats: {}
+    });
+
+    await service.initializeEconomyStorage();
+
+    const owned = await titles.find({ userId: { $in: ["legacy-user", "duplicate-user"] } }).toArray();
+    assert.equal(owned.filter(title => title.userId === "legacy-user")[0].titleId, "ones-above-all");
+    assert.equal(owned.filter(title => title.userId === "duplicate-user" && title.titleId === "ones-above-all").length, 1);
+    assert.equal((await accounts.findOne({ _id: "legacy-user" })).equippedTitleId, "ones-above-all");
+    const archived = await database.getDB().collection("economyMigrations")
+        .find({ _id: "avenger-title-duplicate:legacy-avenger-duplicate" }).toArray();
+    assert.equal(archived.length, 1);
+    assert.equal(archived[0].sourceOwnership.titleId, "avenger");
+});
+
 test("concurrent daily claims grant one reward and persisted cooldown survives service reload", async () => {
     const database = createMemoryDatabase();
     const service = loadEconomyWithDatabase(database);
@@ -929,6 +974,244 @@ test("coinflip wagers honor global luck boosts and process concurrent/retried wa
     assert.deepEqual(retry, first);
     assert.equal([...database.documents.values()].filter(document =>
         document._id === "retry-flip" && document.type === "coinflip"
+    ).length, 1);
+});
+
+test("bank deposits use separate 12-hour lots, charge fees on top, and credit the fee recipient", async () => {
+    const database = createMemoryDatabase();
+    const service = loadEconomyWithDatabase(database);
+    const now = new Date("2026-10-01T00:00:00.000Z");
+    await service.ensureAccount("guild", "bank-user", now);
+    await database.getDB().collection("economyAccounts").updateOne(
+        { _id: "bank-user" },
+        { $set: { wallet: 30000 } }
+    );
+
+    const deposit = await service.depositToBank({
+        guildId: "guild",
+        userId: "bank-user",
+        amount: 20000,
+        operationId: "bank-deposit-1",
+        now
+    });
+    assert.equal(deposit.principal, 20000);
+    assert.equal(deposit.fee, 400);
+    assert.equal(deposit.totalDeduction, 20400);
+    assert.equal(new Date(deposit.unlockAt).getTime() - now.getTime(), 12 * 60 * 60 * 1000);
+    assert.equal((await service.getAccount("guild", "bank-user")).wallet, 9600);
+    assert.equal((await service.getAccount("guild", "1262703637579305063")).wallet, 1400);
+
+    const withdrawal = await service.withdrawFromBank({
+        guildId: "guild",
+        userId: "bank-user",
+        amount: 10001,
+        operationId: "bank-withdraw-1",
+        now: new Date(now.getTime() + 13 * 60 * 60 * 1000)
+    });
+    assert.equal(withdrawal.fee, 100);
+    assert.equal(withdrawal.net, 9901);
+    assert.equal(withdrawal.bankBalance, 9999);
+    assert.equal((await service.getAccount("guild", "bank-user")).wallet, 34501);
+    assert.equal((await service.getAccount("guild", "1262703637579305063")).wallet, 1500);
+    const history = await service.listBankHistory("guild", "bank-user");
+    assert.deepEqual(history.map(transaction => transaction.type), ["bank_withdrawal", "bank_deposit"]);
+    assert.equal(history[1].metadata.feeRecipientUserId, "1262703637579305063");
+});
+
+test("bank deposit preview requires an owner-bound confirmation before charging fees", async () => {
+    const database = createMemoryDatabase();
+    const service = loadEconomyWithDatabase(database);
+    const now = new Date("2026-10-01T00:00:00.000Z");
+    await service.ensureAccount("guild", "preview-user", now);
+    await database.getDB().collection("economyAccounts").updateOne(
+        { _id: "preview-user" },
+        { $set: { wallet: 11000 } }
+    );
+
+    const preview = await service.requestBankDeposit({
+        guildId: "guild",
+        userId: "preview-user",
+        amount: 10000,
+        now
+    });
+    assert.equal(preview.fee, 200);
+    assert.equal(preview.totalDeduction, 10200);
+    assert.equal((await service.getAccount("guild", "preview-user")).wallet, 11000);
+    await assert.rejects(service.confirmBankDeposit({
+        userId: "another-user",
+        token: preview.token,
+        amount: 10000,
+        now
+    }), UserFacingError);
+    await assert.rejects(service.confirmBankDeposit({
+        userId: "preview-user",
+        token: preview.token,
+        amount: 9999,
+        now
+    }), UserFacingError);
+
+    const deposit = await service.confirmBankDeposit({
+        userId: "preview-user",
+        token: preview.token,
+        amount: 10000,
+        now: new Date(now.getTime() + 1000)
+    });
+    assert.equal(deposit.fee, 200);
+    assert.equal((await service.getAccount("guild", "preview-user")).wallet, 800);
+    await assert.rejects(service.confirmBankDeposit({
+        userId: "preview-user",
+        token: preview.token,
+        amount: 10000,
+        now: new Date(now.getTime() + 2000)
+    }), UserFacingError);
+});
+
+test("number lottery draws distinct numbers, pays stake-inclusive prizes, and is idempotent", async () => {
+    const database = createMemoryDatabase();
+    const service = loadEconomyWithDatabase(database);
+    const account = await service.ensureAccount("guild", "lottery-user");
+    assert.equal(account.wallet, 1000);
+    const rolls = [7, 2, 9];
+    let randomCalls = 0;
+    const winning = await service.playNumberLottery({
+        guildId: "guild",
+        userId: "lottery-user",
+        number: 7,
+        amount: 100,
+        operationId: "number-lottery-win",
+        random: () => {
+            randomCalls++;
+            return rolls.shift();
+        }
+    });
+    assert.deepEqual(winning.winningNumbers, [7, 2, 9]);
+    assert.equal(winning.multiplier, 2);
+    assert.equal(winning.payout, 200);
+    assert.equal(winning.net, 100);
+    assert.equal(winning.balance, 1100);
+    assert.equal(randomCalls, 3);
+    const retry = await service.playNumberLottery({
+        guildId: "guild",
+        userId: "lottery-user",
+        number: 7,
+        amount: 100,
+        operationId: "number-lottery-win",
+        random: () => {
+            randomCalls++;
+            return 1;
+        }
+    });
+    assert.deepEqual(retry, winning);
+    assert.equal(randomCalls, 3);
+
+    const lossRolls = [2, 3, 4];
+    const losing = await service.playNumberLottery({
+        guildId: "guild",
+        userId: "lottery-user",
+        number: 1,
+        amount: 100,
+        operationId: "number-lottery-loss",
+        random: () => lossRolls.shift()
+    });
+    assert.equal(losing.won, false);
+    assert.equal(losing.payout, 0);
+    assert.equal(losing.balance, 1000);
+});
+
+test("admin wallet actions require the exact admin ID and global resets require scoped confirmation", async () => {
+    const database = createMemoryDatabase();
+    const service = loadEconomyWithDatabase(database);
+    await assert.rejects(service.adminWalletChange({
+        guildId: "guild",
+        adminUserId: "not-admin",
+        targetUserId: "target",
+        action: "add",
+        amount: 100,
+        operationId: "unauthorized-money"
+    }), UserFacingError);
+
+    await service.ensureAccount("guild", "target");
+    await service.ensureAccount("guild", "second-target");
+    const added = await service.adminWalletChange({
+        guildId: "guild",
+        adminUserId: "1262703637579305063",
+        targetUserId: "target",
+        action: "add",
+        amount: 500,
+        operationId: "admin-add"
+    });
+    assert.equal(added.balanceAfter, 1500);
+    await assert.rejects(service.adminWalletChange({
+        guildId: "guild",
+        adminUserId: "1262703637579305063",
+        targetUserId: "target",
+        action: "remove",
+        amount: 2000,
+        operationId: "admin-remove-too-much"
+    }), UserFacingError);
+
+    const preview = await service.requestBalanceReset({
+        guildId: "guild",
+        adminUserId: "1262703637579305063"
+    });
+    assert.equal(preview.scope, "global");
+    assert.equal(preview.affectedAccountCount, 2);
+    await assert.rejects(service.confirmBalanceReset({
+        guildId: "guild",
+        adminUserId: "another-admin",
+        token: preview.token,
+        scope: "global",
+        operationId: "reset-not-owner"
+    }), UserFacingError);
+    const reset = await service.confirmBalanceReset({
+        guildId: "guild",
+        adminUserId: "1262703637579305063",
+        token: preview.token,
+        scope: "global",
+        operationId: "global-reset"
+    });
+    assert.equal(reset.affectedAccountCount, 2);
+    assert.equal((await service.getAccount("guild", "target")).wallet, 1000);
+    assert.equal((await service.getAccount("guild", "second-target")).wallet, 1000);
+    assert.equal(database.documents.values().some(document =>
+        document.type === "admin_wallet_reset" && document.actorUserId === "target"
+    ), true);
+    assert.equal(database.documents.values().some(document =>
+        document.scope === "global" && document.adminUserId === "1262703637579305063"
+    ), true);
+    assert.equal(await database.getDB().collection("economyAdminConfirmations").findOne({ _id: preview.token }), null);
+});
+
+test("achievement rewards, exclusive tags, progress, and claims persist exactly once", async () => {
+    const database = createMemoryDatabase();
+    const service = loadEconomyWithDatabase(database);
+    await service.ensureAccount("guild", "achievement-user");
+    await database.getDB().collection("economyAccounts").updateOne(
+        { _id: "achievement-user" },
+        { $set: { wallet: 10000 } }
+    );
+    const first = await service.getAchievementSummary("guild", "achievement-user");
+    assert.equal(first.earnedCount, 1);
+    assert.equal(first.completionPercent, Math.round(100 / first.total));
+    assert.equal(first.strongest[0].id, "first-fortune");
+    assert.equal(first.progress["first-fortune"].current, 10000);
+    let account = await service.getAccount("guild", "achievement-user");
+    assert.equal(account.wallet, 15000);
+    assert.deepEqual(account.achievements.unlocked, ["first-fortune"]);
+    assert.deepEqual(account.achievements.claimed, ["first-fortune"]);
+    assert.equal(await database.getDB().collection("economyTitles").findOne({
+        userId: "achievement-user",
+        titleId: "poor-boi"
+    }) !== null, true);
+
+    await Promise.all([
+        service.getAchievementSummary("guild", "achievement-user"),
+        service.getAchievementSummary("guild", "achievement-user")
+    ]);
+    account = await service.getAccount("guild", "achievement-user");
+    assert.equal(account.wallet, 15000);
+    assert.equal(database.documents.values().filter(document =>
+        document.type === "achievement_reward" && document.metadata?.achievementId === "first-fortune"
     ).length, 1);
 });
 

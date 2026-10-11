@@ -2,13 +2,14 @@ const { UserFacingError } = require("./errors");
 const economy = require("./economy");
 const {
     assertGuildInteraction,
-    assertCoinAmount,
     formatCoins,
+    parseCompactCurrencyInput,
     formatDuration,
     getTitleAwareDisplayName,
     sanitizeDisplayText
 } = require("./economy-format");
 const { COLORS, createEconomyEmbed, economyReply } = require("./economy-embeds");
+const ECONOMY_ADMIN_ID = "1262703637579305063";
 
 function privateReply(content) {
     return { ...economyReply("Your private economy information", content), ephemeral: true };
@@ -88,13 +89,16 @@ async function executeBalance(interaction) {
     assertGuildInteraction(interaction);
     const { user, member } = await selectedMember(interaction);
     const account = await economy.getAccount(interaction.guildId, user.id);
+    const bank = await economy.getBankSummary(interaction.guildId, user.id);
     const name = await displayName(interaction.guildId, user, member);
     const title = economy.getCatalogItem(account.equippedTitleId);
     await sendReply(interaction, economyReply("Wallet balance", "Global balance shared across MARK servers.", {
         author: name,
         avatarURL: member.displayAvatarURL(),
         fields: [
-            { name: "Wallet", value: `**${formatCoins(account.wallet)}**` },
+            { name: "Wallet", value: `**${formatCoins(account.wallet)}**`, inline: true },
+            { name: "Bank", value: `**${formatCoins(bank.balance)}**`, inline: true },
+            { name: "Combined wealth", value: `**${formatCoins(bank.combinedWealth)}**`, inline: true },
             {
                 name: "Equipped title",
                 value: title
@@ -143,7 +147,7 @@ async function executeGive(interaction) {
     assertGuildInteraction(interaction);
     const targetUser = interaction.options.getUser("user");
     const target = await getMember(interaction.guild, targetUser);
-    const amount = assertCoinAmount(interaction.options.getInteger("amount"));
+    const amount = readCurrencyAmount(interaction, "Transfer amount");
     if (target.user.id === interaction.user.id) throw new UserFacingError("You cannot transfer coins to yourself.");
     const result = await economy.transfer({
         guildId: interaction.guildId,
@@ -190,7 +194,7 @@ async function executeSteal(interaction) {
 
 async function executeCoinflip(interaction) {
     assertGuildInteraction(interaction);
-    const stake = assertCoinAmount(interaction.options.getInteger("amount"), "Stake");
+    const stake = readCurrencyAmount(interaction, "Stake");
     const choice = interaction.options.getString("choice");
     const result = await economy.coinflip({
         guildId: interaction.guildId,
@@ -219,33 +223,49 @@ async function executeCoinflip(interaction) {
 
 async function executeLottery(interaction) {
     assertGuildInteraction(interaction);
-    const result = await economy.enterLottery({
+    const amount = readCurrencyAmount(interaction, "Lottery wager");
+    const result = await economy.playNumberLottery({
         guildId: interaction.guildId,
         userId: interaction.user.id,
+        number: interaction.options.getInteger("number"),
+        amount,
         operationId: interaction.id
     });
-    const entered = result.entered ? `Your ticket was purchased for **${formatCoins(result.ticketPrice)}**.` : "You already have a ticket for this round.";
-    await sendReply(interaction, publicReply(
-        `${entered}\nPrize pool: **${formatCoins(result.prizePool)}** · Participants: **${result.participants}** · Draw: <t:${Math.floor(result.endAt.getTime() / 1000)}:R>.`,
-        "Daily lottery"
+    const winnings = result.won
+        ? `You matched prize number ${result.winningNumbers.indexOf(result.number) + 1}; payout: **${formatCoins(result.payout)}** (${result.multiplier}×), net **+${formatCoins(result.net)}**.`
+        : `No match. You lost **${formatCoins(result.amount)}**.`;
+    await sendReply(interaction, economyReply(
+        result.won ? "Lottery won" : "Lottery lost",
+        winnings,
+        {
+            color: result.won ? COLORS.success : COLORS.error,
+            fields: [
+                { name: "Your number", value: String(result.number), inline: true },
+                { name: "Winning numbers", value: result.winningNumbers.join(", "), inline: true },
+                { name: "Wager", value: formatCoins(result.amount), inline: true },
+                { name: "Wallet", value: formatCoins(result.balance), inline: true }
+            ]
+        }
     ));
 }
 
 async function executeRichest(interaction) {
     assertGuildInteraction(interaction);
-    const accounts = await economy.getRichest(interaction.guildId);
+    const mode = interaction.options.getString?.("mode") || "combined";
+    const accounts = await economy.getRichest(interaction.guildId, 10, mode);
     const rows = [];
     for (const account of accounts) {
         const name = await getUserName(interaction.client, interaction.guild, account.userId);
-        rows.push(`${rows.length + 1}. **${name}** — ${formatCoins(account.wallet)}`);
+        rows.push(`${rows.length + 1}. **${name}** — ${formatCoins(account.leaderboardValue)} · Wallet ${formatCoins(account.wallet)} · Bank ${formatCoins(account.bankBalance)} · Combined ${formatCoins(account.combinedWealth)}`);
     }
-    await sendReply(interaction, economyReply("Global richest wallets", rows.join("\n") || "No economy accounts yet."));
+    await sendReply(interaction, economyReply(`Global richest · ${mode}`, rows.join("\n") || "No economy accounts yet."));
 }
 
 async function executeProfile(interaction) {
     assertGuildInteraction(interaction);
     const { user, member } = await selectedMember(interaction);
     const profile = await economy.getProfile(interaction.guildId, user.id);
+    const achievements = await economy.getAchievementSummary(interaction.guildId, user.id);
     const stats = profile.account.stats || {};
     const titleNames = profile.inventory.titles.map(owned =>
         `${owned.item?.name || "Unknown"}${owned.variantCode ? ` (${owned.variantCode})` : ""}`
@@ -262,6 +282,21 @@ async function executeProfile(interaction) {
     const name = await displayName(interaction.guildId, user, member);
     const rarity = Object.entries(profile.rarityCounts).map(([key, value]) => `${key}: ${value}`).join(", ") || "None";
     const equippedTitle = economy.getCatalogItem(profile.account.equippedTitleId);
+    const achievementCatalog = require("./economy-achievements").getAchievementCatalog();
+    const lockedProgress = achievementCatalog
+        .filter(achievement => !achievements.unlocked.includes(achievement.id))
+        .map(achievement => ({ achievement, progress: achievements.progress[achievement.id] }))
+        .filter(entry => entry.progress)
+        .sort((left, right) =>
+            right.progress.percentage - left.progress.percentage ||
+            (left.achievement.difficulty || 0) - (right.achievement.difficulty || 0) ||
+            left.achievement.id.localeCompare(right.achievement.id)
+        )
+        .slice(0, 3)
+        .map(entry => `${entry.achievement.name}: ${entry.progress.current.toLocaleString("en-US")}/${entry.progress.target.toLocaleString("en-US")}`);
+    const completionBar = `[${"#".repeat(Math.round(achievements.completionPercent / 10))}${"-".repeat(10 - Math.round(achievements.completionPercent / 10))}]`;
+    const hardest = achievements.strongest.map(achievement => achievement.name).join(", ") || "None earned yet";
+    const recent = achievements.recent.map(achievement => achievement.name).join(", ") || "None yet";
     await sendReply(interaction, economyReply(`${name}'s global economy profile`, null, {
         author: name,
         avatarURL: member.displayAvatarURL(),
@@ -282,7 +317,8 @@ async function executeProfile(interaction) {
             { name: "Earnings / spending", value: `${formatCoins(stats.totalEarned)} / ${formatCoins(stats.totalSpent)}`, inline: true },
             { name: "Gambling wins / losses", value: `${stats.gamblingWins || 0} / ${stats.gamblingLosses || 0}`, inline: true },
             { name: "Successful / failed steals", value: `${stats.successfulSteals || 0} / ${stats.failedSteals || 0}`, inline: true },
-            { name: "Steal fines paid / received", value: `${formatCoins(stats.stealFinesPaid)} / ${formatCoins(stats.stealFinesReceived)}` }
+            { name: "Steal fines paid / received", value: `${formatCoins(stats.stealFinesPaid)} / ${formatCoins(stats.stealFinesReceived)}` },
+            { name: "Achievements", value: `${achievements.earnedCount}/${achievements.total} · ${achievements.completionPercent}% ${completionBar}\nRecently unlocked: ${recent}\nHardest earned: ${hardest}\nLocked progress: ${lockedProgress.join(" · ") || "All active achievements earned"}\nThe Dark Knight: ${achievements.completionTagUnlocked ? "unlocked" : "locked"}` }
         ]
     }));
 }
@@ -387,10 +423,15 @@ async function executeShop(interaction) {
     const listings = await economy.listShop(interaction.guildId, interaction.user.id);
     const category = action === "titles" ? "title" : action === "consumables" ? "consumable" : null;
     const filtered = listings.filter(entry => !category || entry.item.category === category);
+    const page = interaction.options.getInteger("page") || 1;
+    const pageSize = 8;
+    const pageCount = Math.max(1, Math.ceil(filtered.length / pageSize));
+    if (page > pageCount) throw new UserFacingError(`The shop has ${pageCount} page(s) in this category.`);
+    const pageListings = filtered.slice((page - 1) * pageSize, page * pageSize);
     const grouped = [
-        { title: "Boosts", items: filtered.filter(({ item }) => item.id.startsWith("coinflip-luck-")) },
-        { title: "Bodyguards", items: filtered.filter(({ item }) => item.id === "bodyguard") },
-        { title: "Titles", items: filtered.filter(({ item }) => item.category === "title") }
+        { title: "Boosts", items: pageListings.filter(({ item }) => item.id.startsWith("coinflip-luck-")) },
+        { title: "Bodyguards", items: pageListings.filter(({ item }) => item.id === "bodyguard") },
+        { title: "Titles", items: pageListings.filter(({ item }) => item.category === "title") }
     ];
     const fields = [];
     for (const group of grouped) {
@@ -414,9 +455,9 @@ async function executeShop(interaction) {
         }
     }
     const title = "MARK Economy Shop";
-    const description = "Purchase items and titles with your global wallet balance.\nBrowse the listings, choose an item's ID, then use `/shop buy item:<ID>`; add optional `quantity:<N>` for stackable items. Selling uses `/shop sell item:<ID>`.";
+    const description = `Purchase items and titles with your global wallet balance · page ${page}/${pageCount}.\nBrowse the listings, choose an item's ID, then use \`/shop buy item:<ID>\`; add optional \`quantity:<N>\` for stackable items. Selling uses \`/shop sell item:<ID>\`.`;
     await sendReply(interaction, {
-        embeds: [createEconomyEmbed({ title, description, fields })],
+        embeds: [createEconomyEmbed({ title, description, fields, footer: `Use /shop ${action} page:${Math.min(page + 1, pageCount)} for the next page.` })],
         allowedMentions: { parse: [] }
     });
 }
@@ -538,6 +579,318 @@ async function executeTitles(interaction) {
     ));
 }
 
+async function executeBank(interaction) {
+    assertGuildInteraction(interaction);
+    const targetUser = interaction.options.getUser ? interaction.options.getUser("user") : null;
+    const user = targetUser || interaction.user;
+    const summary = await economy.getBankSummary(interaction.guildId, user.id);
+    const isSelf = user.id === interaction.user.id;
+    const label = isSelf ? "Your bank" : `${await getUserName(interaction.client, interaction.guild, user.id)}'s bank`;
+    const fields = [
+        { name: "Wallet", value: formatCoins(summary.wallet), inline: true },
+        { name: "Bank balance", value: formatCoins(summary.balance), inline: true },
+        { name: "Locked", value: formatCoins(summary.locked), inline: true },
+        { name: "Unlocked", value: formatCoins(summary.unlocked), inline: true },
+        { name: "Deposit count", value: `${summary.depositCount || 0}/10`, inline: true },
+        { name: "Next unlock", value: summary.nextUnlockAt ? `<t:${Math.floor(new Date(summary.nextUnlockAt).getTime() / 1000)}:R>` : "None", inline: true },
+        { name: "Deposit fees paid", value: formatCoins(summary.totalDepositFeesPaid), inline: true },
+        { name: "Withdrawal fees paid", value: formatCoins(summary.totalWithdrawalFeesPaid), inline: true }
+    ];
+    await sendReply(interaction, economyReply(label, null, {
+        author: isSelf ? "Your bank" : label,
+        avatarURL: interaction.user.displayAvatarURL ? interaction.user.displayAvatarURL() : undefined,
+        fields
+    }));
+}
+
+async function executeDeposit(interaction) {
+    assertGuildInteraction(interaction);
+    const resolved = readCurrencyAmount(interaction, "Deposit amount");
+    const token = interaction.options.getString("confirm");
+    if (!token) {
+        const preview = await economy.requestBankDeposit({
+            guildId: interaction.guildId,
+            userId: interaction.user.id,
+            amount: resolved
+        });
+        await sendReply(interaction, publicReply(
+            `**Deposit preview**\nPrincipal: **${formatCoins(preview.amount)}**\nDeposit fee (2%, rounded down to whole coins): **${formatCoins(preview.fee)}**\nTotal wallet deduction: **${formatCoins(preview.totalDeduction)}**.\nThis creates a separate bank lot locked for 12 hours. Confirm within five minutes with \`/deposit amount:${resolved} confirm:${preview.token}\`.`,
+            "Confirm bank deposit"
+        ));
+        return;
+    }
+    const result = await economy.confirmBankDeposit({
+        userId: interaction.user.id,
+        amount: resolved,
+        token
+    });
+    await sendReply(interaction, publicReply(
+        `Deposited **${formatCoins(result.principal)}** with a **${formatCoins(result.fee)}** fee. Total wallet deduction: **${formatCoins(result.totalDeduction)}**. Bank balance: **${formatCoins(result.bankBalance)}**. Unlocks <t:${Math.floor(new Date(result.unlockAt).getTime() / 1000)}:R>.`,
+        "Bank deposit"
+    ));
+}
+
+async function executeWithdraw(interaction) {
+    assertGuildInteraction(interaction);
+    const resolved = readCurrencyAmount(interaction, "Withdrawal amount");
+    const result = await economy.withdrawFromBank({
+        guildId: interaction.guildId,
+        userId: interaction.user.id,
+        amount: resolved,
+        operationId: interaction.id
+    });
+    await sendReply(interaction, publicReply(
+        `Withdrew **${formatCoins(result.principal)}** from the bank. Fee: **${formatCoins(result.fee)}**. Net wallet credit: **${formatCoins(result.net)}**. Remaining bank balance: **${formatCoins(result.bankBalance)}**.`,
+        "Bank withdrawal"
+    ));
+}
+
+async function executeBankFunds(interaction) {
+    assertGuildInteraction(interaction);
+    const summary = await economy.getBankSummary(interaction.guildId, interaction.user.id);
+    await sendReply(interaction, publicReply([
+        `Total bank principal: **${formatCoins(summary.balance)}**`,
+        `Locked principal: **${formatCoins(summary.locked)}**`,
+        `Unlocked principal: **${formatCoins(summary.unlocked)}**`,
+        `Total deposited: **${formatCoins(summary.totalDeposits)}** · Lots: **${summary.lots.length}**`,
+        `Deposit/withdrawal fees paid: **${formatCoins(summary.totalDepositFeesPaid)} / ${formatCoins(summary.totalWithdrawalFeesPaid)}**`,
+        summary.nextUnlockAt ? `Next unlock: <t:${Math.floor(new Date(summary.nextUnlockAt).getTime() / 1000)}:R>` : "No active bank deposits"
+    ].join("\n"), "Bank funds"));
+}
+
+async function executeBankHistory(interaction) {
+    assertGuildInteraction(interaction);
+    const page = interaction.options.getInteger ? interaction.options.getInteger("page") || 1 : 1;
+    const rows = await economy.listBankHistory(interaction.guildId, interaction.user.id, page, 8);
+    const formatted = rows.length
+        ? rows.map(entry => {
+            const metadata = entry.metadata || {};
+            const feeText = metadata.feeRecipientUserId
+                ? ` · fee ${formatCoins(metadata.fee || 0)} to <@${metadata.feeRecipientUserId}>`
+                : ` · fee ${formatCoins(metadata.fee || 0)}`;
+            const details = entry.type === "bank_deposit"
+                ? ` · lot ${metadata.lotId || "unknown"} · unlocks ${metadata.unlockAt ? `<t:${Math.floor(new Date(metadata.unlockAt).getTime() / 1000)}:R>` : "unknown"}`
+                : ` · net wallet ${formatCoins(metadata.net || 0)}`;
+            return `• **${entry.type.replace("bank_", "").replace(/_/g, " ")}** · principal ${formatCoins(entry.amount)}${feeText}${details} · <t:${Math.floor(new Date(entry.createdAt).getTime() / 1000)}:R>`;
+        }).join("\n")
+        : "No bank transactions yet.";
+    await sendReply(interaction, privateReply(`**Your bank history · page ${page}**\n${formatted}`));
+}
+
+async function executeAchievements(interaction) {
+    assertGuildInteraction(interaction);
+    const user = interaction.options.getUser ? interaction.options.getUser("user") || interaction.user : interaction.user;
+    const summary = await economy.getAchievementSummary(interaction.guildId, user.id);
+    const account = await economy.getAccount(interaction.guildId, user.id);
+    const catalog = require("./economy-achievements").getAchievementCatalog();
+    const unlocked = new Set(account?.achievements?.unlocked || []);
+    const claimed = new Set(account?.achievements?.claimed || []);
+    const page = interaction.options.getInteger?.("page") || 1;
+    const pageSize = 8;
+    const pageCount = Math.max(1, Math.ceil(catalog.length / pageSize));
+    if (page > pageCount) throw new UserFacingError(`Achievements has ${pageCount} page(s).`);
+    const achievements = catalog.slice((page - 1) * pageSize, page * pageSize);
+    const lines = achievements.map(item => {
+        const reward = [
+            item.rewardCoins ? formatCoins(item.rewardCoins) : null,
+            ...(item.rewardTags || [])
+        ].filter(Boolean).join(" + ") || "No reward";
+        const earned = unlocked.has(item.id);
+        const rewardClaimed = claimed.has(item.id);
+        const progress = summary.progress[item.id];
+        const progressText = progress
+            ? `Progress: ${progress.current.toLocaleString("en-US")}/${progress.target.toLocaleString("en-US")}`
+            : "Progress: unavailable";
+        const unlockedAt = account?.achievements?.unlockedAt?.[item.id];
+        return `${earned ? "✅" : "⬜"} **${item.name}** · ${item.rarity}\n${item.description}\n${progressText} · Reward: ${reward} · ${earned ? (rewardClaimed ? "claimed" : "unclaimed") : "locked"}${unlockedAt ? ` · <t:${Math.floor(new Date(unlockedAt).getTime() / 1000)}:d>` : ""}`;
+    });
+    const darkKnight = (account?.achievements?.unlocked || []).includes("the-dark-knight");
+    await sendReply(interaction, economyReply(
+        `${user.username || "Player"} · Achievements`,
+        `${summary.earnedCount}/${summary.total} unlocked · ${summary.completionPercent}% complete${darkKnight ? "\n**The Dark Knight** completion reward unlocked." : ""}\n\n${lines.join("\n\n") || "No achievements available."}`,
+        { footer: `Page ${page}/${pageCount}` }
+    ));
+}
+
+async function executeHelp(interaction) {
+    assertGuildInteraction(interaction);
+    const fs = require("node:fs");
+    const path = require("node:path");
+    const commandDir = path.join(__dirname, "../commands");
+    const files = fs.readdirSync(commandDir).filter(file => file.endsWith(".js"));
+    const groups = {
+        UTILITY: [],
+        ECONOMY: [],
+        GAMBLING: [],
+        "SHOP & COLLECTION": [],
+        BANKING: [],
+        ACHIEVEMENTS: [],
+        OTHER: []
+    };
+
+    const categories = {
+        utility: new Set(["afk", "avatar", "cooldown", "ping", "remind", "reminder", "reminders", "serverinfo", "uptime", "userinfo"]),
+        economy: new Set(["bal", "beg", "daily", "economy", "give", "steal", "transactions", "weekly", "work"]),
+        gambling: new Set(["cf", "lottery", "richest"]),
+        collection: new Set(["boosts", "inventory", "item", "shop", "titles", "use"]),
+        banking: new Set(["bank", "bankfunds", "deposit", "withdraw"]),
+        achievements: new Set(["achievements", "profile"])
+    };
+    const commandSyntax = command => {
+        const data = command.data.toJSON();
+        const options = data.options || [];
+        const syntaxFor = (name, optionsList) => {
+            const args = optionsList
+                .filter(option => option.type !== 1 && option.type !== 2)
+                .map(option => ` ${option.required ? "<" : "["}${option.name}${option.required ? ">" : "]"}`)
+                .join("");
+            return `${name}${args}`;
+        };
+        const expand = (name, optionsList) => {
+            const subcommands = optionsList.filter(option => option.type === 1 || option.type === 2);
+            if (!subcommands.length) return [syntaxFor(name, optionsList)];
+            return subcommands.flatMap(option => expand(`${name} ${option.name}`, option.options || []));
+        };
+        return expand(`/${data.name}`, options).join(" · ");
+    };
+
+    for (const file of files) {
+        const command = require(path.join(commandDir, file));
+        const data = command.data?.toJSON?.();
+        const name = data?.name || "";
+        if (!name || command.adminOnly || data.default_member_permissions) continue;
+        const entry = { syntax: commandSyntax(command), description: data.description || "No description provided." };
+        const category = categories.utility.has(name) ? "UTILITY"
+            : categories.economy.has(name) ? "ECONOMY"
+                : categories.gambling.has(name) ? "GAMBLING"
+                    : categories.collection.has(name) ? "SHOP & COLLECTION"
+                        : categories.banking.has(name) ? "BANKING"
+                            : categories.achievements.has(name) ? "ACHIEVEMENTS"
+                                : "OTHER";
+        groups[category].push(entry);
+    }
+    const categoryOrder = ["UTILITY", "ECONOMY", "GAMBLING", "SHOP & COLLECTION", "BANKING", "ACHIEVEMENTS", "OTHER"];
+    const fields = [];
+    for (const category of categoryOrder) {
+        const lines = groups[category].map(entry => `\`${entry.syntax}\` — ${entry.description}`);
+        let chunk = "";
+        let index = 1;
+        for (const line of lines) {
+            if (chunk && `${chunk}\n${line}`.length > 950) {
+                fields.push({ name: index === 1 ? category : `${category} (${index})`, value: chunk });
+                chunk = "";
+                index++;
+            }
+            chunk = chunk ? `${chunk}\n${line}` : line;
+        }
+        if (chunk) fields.push({ name: index === 1 ? category : `${category} (${index})`, value: chunk });
+    }
+    const page = interaction.options.getInteger?.("page") || 1;
+    const pageSize = 5;
+    const pageCount = Math.max(1, Math.ceil(fields.length / pageSize));
+    if (page > pageCount) throw new UserFacingError(`Help has ${pageCount} page(s).`);
+    await sendReply(interaction, economyReply(
+        `MARK Help · page ${page}/${pageCount}`,
+        `Public commands · use \`/help page:${Math.min(page + 1, pageCount)}\` for the next page.`,
+        { fields: fields.slice((page - 1) * pageSize, page * pageSize) }
+    ));
+}
+
+function readCurrencyAmount(interaction, label, allowZero = false) {
+    const text = interaction.options.getString?.("amount");
+    if (text !== null && text !== undefined) return parseCompactCurrencyInput(text, { label, allowZero });
+    const integer = interaction.options.getInteger?.("amount");
+    return parseCompactCurrencyInput(integer, { label, allowZero });
+}
+
+async function executeAdminWalletChange(interaction, action) {
+    assertGuildInteraction(interaction);
+    if (interaction.user.id !== ECONOMY_ADMIN_ID) {
+        throw new UserFacingError("You are not authorized to administer the global economy.");
+    }
+    await interaction.deferReply({ ephemeral: true });
+    const target = interaction.options.getUser("user");
+    if (!target || target.bot) throw new UserFacingError("Choose a valid non-bot target user.");
+    const amount = readCurrencyAmount(
+        interaction,
+        action === "set" ? "Wallet amount" : `${action} amount`,
+        action === "set"
+    );
+    const result = await economy.adminWalletChange({
+        guildId: interaction.guildId,
+        adminUserId: interaction.user.id,
+        targetUserId: target.id,
+        action,
+        amount,
+        operationId: interaction.id
+    });
+    await sendReply(interaction, privateReply(
+        `Set **${target.username || target.id}**'s wallet from **${formatCoins(result.balanceBefore)}** to **${formatCoins(result.balanceAfter)}**.`,
+    ));
+}
+
+async function executeReset(interaction) {
+    assertGuildInteraction(interaction);
+    if (interaction.user.id !== ECONOMY_ADMIN_ID) {
+        throw new UserFacingError("You are not authorized to administer the global economy.");
+    }
+    await interaction.deferReply({ ephemeral: true });
+    const target = interaction.options.getUser("user");
+    if (!target || target.bot) throw new UserFacingError("Choose a valid non-bot target user.");
+    const token = interaction.options.getString("confirm");
+    if (token) {
+        const result = await economy.confirmBalanceReset({
+            guildId: interaction.guildId,
+            adminUserId: interaction.user.id,
+            token,
+            scope: "user",
+            operationId: interaction.id
+        });
+        await sendReply(interaction, privateReply(
+            `Reset the global wallet for <@${target.id}> to **${formatCoins(result.resetTo)}**. Bank funds, inventory, titles, counting data, and transaction history were preserved.`
+        ));
+        return;
+    }
+    const preview = await economy.requestBalanceReset({
+        guildId: interaction.guildId,
+        adminUserId: interaction.user.id,
+        targetUserId: target.id
+    });
+    const account = await economy.getAccount(interaction.guildId, target.id);
+    await sendReply(interaction, privateReply(
+        `**Confirmation required — one global account**\nTarget: <@${target.id}> · Current wallet: ${formatCoins(account.wallet)} · Affected accounts: **${preview.affectedAccountCount}** · New wallet: ${formatCoins(1000)}.\nThis changes the global wallet only and preserves bank funds, inventory, titles, counting data, and history. Confirm within five minutes with \`/reset user:<@${target.id}> confirm:${preview.token}\`.`
+    ));
+}
+
+async function executeResetAll(interaction) {
+    assertGuildInteraction(interaction);
+    if (interaction.user.id !== ECONOMY_ADMIN_ID) {
+        throw new UserFacingError("You are not authorized to administer the global economy.");
+    }
+    await interaction.deferReply({ ephemeral: true });
+    const token = interaction.options.getString("confirm");
+    if (token) {
+        const result = await economy.confirmBalanceReset({
+            guildId: interaction.guildId,
+            adminUserId: interaction.user.id,
+            token,
+            scope: "global",
+            operationId: interaction.id
+        });
+        await sendReply(interaction, privateReply(
+            `Global reset complete: **${result.affectedAccountCount}** accounts now have **${formatCoins(result.resetTo)}** in their wallets. Bank funds, inventory, titles, counting data, and transaction history were preserved.`
+        ));
+        return;
+    }
+    const preview = await economy.requestBalanceReset({
+        guildId: interaction.guildId,
+        adminUserId: interaction.user.id
+    });
+    await sendReply(interaction, privateReply(
+        `**GLOBAL reset confirmation required**\nScope: every global economy account across all servers · Estimated accounts: **${preview.affectedAccountCount}** · New wallet balance: ${formatCoins(1000)} each.\nThis is not limited to this server. Bank funds, inventory, titles, counting data, and transaction history will be preserved. Confirm within five minutes with \`/resetall confirm:${preview.token}\`.`
+    ));
+}
+
 async function executeAvatarDisplayName(interaction, user, member) {
     return displayName(interaction.guildId, user, member);
 }
@@ -563,5 +916,15 @@ module.exports = {
     executeUse: defer(executeUse, false),
     executeBoosts: defer(executeBoosts, false),
     executeTitles: defer(executeTitles, false),
+    executeBank: defer(executeBank, false),
+    executeDeposit: defer(executeDeposit, false),
+    executeWithdraw: defer(executeWithdraw, false),
+    executeBankFunds: defer(executeBankFunds, false),
+    executeBankHistory: defer(executeBankHistory, true),
+    executeAchievements: defer(executeAchievements, false),
+    executeHelp: defer(executeHelp, false),
+    executeAdminWalletChange,
+    executeReset,
+    executeResetAll,
     executeAvatarDisplayName
 };

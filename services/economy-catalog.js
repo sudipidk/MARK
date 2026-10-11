@@ -8,13 +8,32 @@ const titles = [
     { id: "guardian", name: "Guardian", rarity: "Epic", price: 1000000, resalePrice: 500000 },
     { id: "sorcerer", name: "Sorcerer", rarity: "Legendary", price: 5000000, resalePrice: 2500000 },
     { id: "sorcerer-supreme", name: "Sorcerer Supreme", rarity: "Mythic", price: 15000000, weeklyStock: 1 },
-    { id: "avenger", name: "Avenger", rarity: "Mythic", price: 25000000, resalePrice: 12500000 }
+    { id: "ones-above-all", name: "Ones Above All", rarity: "Mythic", price: 25000000, resalePrice: 12500000 },
+    { id: "gooner", name: "Gooner", rarity: "Rare", price: 50000, resalePrice: 25000, stock: Infinity },
+    { id: "pathfinder", name: "Pathfinder", rarity: "Uncommon", price: 75000, resalePrice: 37500 },
+    { id: "nightwatch", name: "Nightwatch", rarity: "Rare", price: 150000, resalePrice: 75000 },
+    { id: "celestial", name: "Celestial", rarity: "Epic", price: 400000, resalePrice: 200000 },
+    { id: "ember", name: "Ember", rarity: "Uncommon", price: 60000, resalePrice: 30000 },
+    { id: "frostborn", name: "Frostborn", rarity: "Rare", price: 200000, resalePrice: 100000 },
+    { id: "trailblazer", name: "Trailblazer", rarity: "Epic", price: 600000, resalePrice: 300000 },
+    { id: "sovereign", name: "Sovereign", rarity: "Legendary", price: 3000000, resalePrice: 1500000 },
+    { id: "eclipse", name: "Eclipse", rarity: "Mythic", price: 12000000, resalePrice: 6000000 },
+    { id: "astral", name: "Astral", rarity: "Legendary", price: 7500000, resalePrice: 3750000 }
 ].map(item => Object.freeze({
     category: "title",
     description: `${item.rarity} title. Rarity is descriptive and provides no gameplay advantage.`,
-    sellable: item.weeklyStock === undefined,
+    sellable: item.weeklyStock === undefined && item.id !== "gooner" ? true : item.id === "gooner",
     ...item
 }));
+
+const exclusiveTags = [
+    { id: "poor-boi", name: "Poor Boi", rarity: "Rare", category: "title", sellable: false, purchaseable: false, exclusive: true, description: "Achievement reward for First Fortune." },
+    { id: "unlucky", name: "Unlucky", rarity: "Rare", category: "title", sellable: false, purchaseable: false, exclusive: true, description: "Achievement reward tied to unlucky and robbery milestones." },
+    { id: "the-dark-knight", name: "The Dark Knight", rarity: "Mythic", category: "title", sellable: false, purchaseable: false, exclusive: true, description: "Exclusive reward for earning every active achievement." },
+    { id: "billionaire", name: "Billionaire", rarity: "Legendary", category: "title", sellable: false, purchaseable: false, exclusive: true, description: "Achievement reward for reaching a billion wallet coins." },
+    { id: "ultimate-collector", name: "Ultimate Collector", rarity: "Mythic", category: "title", sellable: false, purchaseable: false, exclusive: true, description: "Achievement reward for completing the cosmetic collection." },
+    { id: "legendary-veteran", name: "Legendary Veteran", rarity: "Mythic", category: "title", sellable: false, purchaseable: false, exclusive: true, description: "Achievement reward for a year of global economy history." }
+];
 
 const consumables = [
     {
@@ -55,14 +74,18 @@ const consumables = [
 }));
 
 const catalog = [...titles, ...consumables];
-const catalogById = new Map(catalog.map(item => [item.id, item]));
+const allCatalog = [...catalog, ...exclusiveTags];
+const catalogById = new Map(allCatalog.map(item => [item.id, item]));
+if (catalogById.has("ones-above-all")) {
+    catalogById.set("avenger", catalogById.get("ones-above-all"));
+}
 
 function getCatalogItem(value) {
     if (typeof value !== "string") return null;
-    const normalized = value.trim().toLowerCase();
+    const normalized = value.trim().toLowerCase().replace(/\s+/g, "-");
     return catalogById.get(normalized) ||
-        catalog.find(item => item.name.toLowerCase() === normalized) ||
+        allCatalog.find(item => item.name.toLowerCase().replace(/\s+/g, "-") === normalized) ||
         null;
 }
 
-module.exports = { catalog, titles, consumables, getCatalogItem };
+module.exports = { catalog, allCatalog, titles, consumables, exclusiveTags, getCatalogItem };

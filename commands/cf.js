@@ -13,10 +13,9 @@ module.exports = {
                 { name: "Tails", value: "tails" }
             )
             .setRequired(true))
-        .addIntegerOption(option => option
+        .addStringOption(option => option
             .setName("amount")
-            .setDescription("Wager any positive whole number of coins")
-            .setMinValue(1)
+            .setDescription("Wager (for example: 1000, 1k, 1.5m)")
             .setRequired(true)),
     execute: executeCoinflip
 };

@@ -6,6 +6,6 @@ module.exports = {
         .setName("give")
         .setDescription("Transfer coins to a server member.")
         .addUserOption(option => option.setName("user").setDescription("Recipient").setRequired(true))
-        .addIntegerOption(option => option.setName("amount").setDescription("Whole coins to transfer").setMinValue(1).setRequired(true)),
+        .addStringOption(option => option.setName("amount").setDescription("Amount (for example: 1000, 1k, 1.5m)").setRequired(true)),
     execute: executeGive
 };

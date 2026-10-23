@@ -18,6 +18,7 @@ const { registerInteractionHandler } = require("./services/interaction-handler")
 const { initializeAfkStorage } = require("./services/afk");
 const { initializeReminderStorage } = require("./services/reminder-storage");
 const { startReminderScheduler } = require("./services/reminder-scheduler");
+const { initializeFunStorage } = require("./services/fun-commands");
 const { registerAfkMessageEvents } = require("./services/afk-message-handler");
 const {
     getStartupConfig,
@@ -43,7 +44,6 @@ const commandFiles = fs
 for (const file of commandFiles) {
     const filePath = path.join(commandsPath, file);
     const command = require(filePath);
-
     client.commands.set(command.data.name, command);
 }
 
@@ -73,6 +73,8 @@ async function startBot() {
         await initializeAfkStorage();
         startupStage = "reminder storage initialization";
         await initializeReminderStorage();
+        startupStage = "fun systems storage initialization";
+        await initializeFunStorage();
 
         // Register bot event handlers
         startupStage = "event registration";

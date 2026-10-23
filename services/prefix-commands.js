@@ -4,9 +4,10 @@ const { createReminder, cancelReminder, listPendingReminders } = require("./remi
 const { createReminderListPayload } = require("./reminder-list");
 const { UserFacingError, getUserFacingMessage } = require("./errors");
 const { getServerData } = require("./counting");
+const { FUN_COMMAND_NAMES, executePrefix } = require("./fun-commands");
 
 const PREFIX = "m!";
-const COMMAND_NAMES = new Set(["afk", "remind", "reminders", "reminder"]);
+const COMMAND_NAMES = new Set(["afk", "remind", "reminders", "reminder", ...FUN_COMMAND_NAMES]);
 
 function parsePrefixCommand(content) {
     const match = content.match(/^m!(\S+)(?:\s+([\s\S]*))?$/i);
@@ -38,6 +39,10 @@ async function replyError(message, error) {
 }
 
 async function executePrefixCommand(message, command) {
+    if (FUN_COMMAND_NAMES.includes(command.name)) {
+        await executePrefix(command.name, message, command.args);
+        return;
+    }
     switch (command.name) {
         case "afk": {
             const record = await setAfk(

@@ -725,6 +725,7 @@ async function executeHelp(interaction) {
         "SHOP & COLLECTION": [],
         BANKING: [],
         ACHIEVEMENTS: [],
+        "FUN & SOCIAL": [],
         OTHER: []
     };
 
@@ -734,7 +735,25 @@ async function executeHelp(interaction) {
         gambling: new Set(["cf", "lottery", "richest"]),
         collection: new Set(["boosts", "inventory", "item", "shop", "titles", "use"]),
         banking: new Set(["bank", "bankfunds", "deposit", "withdraw"]),
-        achievements: new Set(["achievements", "profile"])
+        achievements: new Set(["achievements", "profile"]),
+        fun: new Set([
+            "dnatest", "gaytest", "iqtest", "lovetest", "rizztest", "lucktest",
+            "chatest", "charoll", "characters", "roast", "compliment", "kill", "kiss"
+        ])
+    };
+    const prefixAliases = {
+        dnatest: "m!dnatest [@user]",
+        gaytest: "m!gaytest [@user]",
+        iqtest: "m!iqtest [@user]",
+        lovetest: "m!lovetest @user1 @user2",
+        rizztest: "m!rizztest [@user]",
+        lucktest: "m!lucktest [@user]",
+        chatest: "m!chatest [@user]",
+        charoll: "m!charoll [@user]",
+        roast: "m!roast @user",
+        compliment: "m!compliment @user",
+        kill: "m!kill @user",
+        kiss: "m!kiss @user"
     };
     const commandSyntax = command => {
         const data = command.data.toJSON();
@@ -759,8 +778,13 @@ async function executeHelp(interaction) {
         const data = command.data?.toJSON?.();
         const name = data?.name || "";
         if (!name || command.adminOnly || data.default_member_permissions) continue;
-        const entry = { syntax: commandSyntax(command), description: data.description || "No description provided." };
-        const category = categories.utility.has(name) ? "UTILITY"
+        const alias = prefixAliases[name];
+        const entry = {
+            syntax: `${commandSyntax(command)}${alias ? ` · \`${alias}\`` : ""}`,
+            description: data.description || "No description provided."
+        };
+        const category = categories.fun.has(name) ? "FUN & SOCIAL"
+            : categories.utility.has(name) ? "UTILITY"
             : categories.economy.has(name) ? "ECONOMY"
                 : categories.gambling.has(name) ? "GAMBLING"
                     : categories.collection.has(name) ? "SHOP & COLLECTION"
@@ -769,7 +793,7 @@ async function executeHelp(interaction) {
                                 : "OTHER";
         groups[category].push(entry);
     }
-    const categoryOrder = ["UTILITY", "ECONOMY", "GAMBLING", "SHOP & COLLECTION", "BANKING", "ACHIEVEMENTS", "OTHER"];
+    const categoryOrder = ["UTILITY", "FUN & SOCIAL", "ECONOMY", "GAMBLING", "SHOP & COLLECTION", "BANKING", "ACHIEVEMENTS", "OTHER"];
     const fields = [];
     for (const category of categoryOrder) {
         const lines = groups[category].map(entry => `\`${entry.syntax}\` — ${entry.description}`);

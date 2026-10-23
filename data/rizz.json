@@ -1,0 +1,156 @@
+{
+  "bands": [
+    {
+      "min": 0,
+      "max": 99,
+      "title": "Rizzless",
+      "messages": [
+        "Your opening line is still buffering.",
+        "The charm is on airplane mode today.",
+        "A little confidence patch might help.",
+        "Your pickup line crashed before reaching the server.",
+        "The conversation has left you on read. Even the bot feels that.",
+        "Your rizz has temporarily disconnected from the network.",
+        "The confidence update is downloading. Please wait.",
+        "Your opening line needs a software update.",
+        "Cupid checked your stats and quietly closed the dashboard.",
+        "Your charisma is currently running in safe mode.",
+        "The conversation started, but your brain entered maintenance mode.",
+        "Your charm has requested an unscheduled break.",
+        "Even the tutorial NPC is waiting for you to say something.",
+        "Your social battery is at 1%, and the charger is missing."
+      ]
+    },
+    {
+      "min": 100,
+      "max": 299,
+      "title": "Beginner",
+      "messages": [
+        "You have entered the conversation; now comes the tutorial.",
+        "A promising start, with room for one more practice round.",
+        "Your charm is learning the controls.",
+        "You successfully said hello. The legendary journey begins.",
+        "Your conversation skills have unlocked the first achievement.",
+        "You have potential, but the dialogue options need work.",
+        "One small conversation at a time. Progress is progress.",
+        "Your confidence has entered the lobby.",
+        "You can start a conversation without immediately disconnecting.",
+        "The basics are there. Now add some personality.",
+        "Your rizz is still in training mode.",
+        "You have unlocked the ability to make acceptable small talk.",
+        "Your social skills gained a little experience today."
+      ]
+    },
+    {
+      "min": 300,
+      "max": 499,
+      "title": "Decent Game",
+      "messages": [
+        "You can hold a conversation and find the good memes.",
+        "A respectable level of charm has been detected.",
+        "You have a few solid moves in your social toolkit.",
+        "Your jokes occasionally land, and that counts.",
+        "You know when to talk and when to listen.",
+        "Your conversations have officially left tutorial territory.",
+        "You can turn an awkward silence into a decent discussion.",
+        "Your personality is doing more work than your pickup lines.",
+        "You have enough confidence to keep the conversation moving.",
+        "Your humor has a surprisingly good success rate.",
+        "You are becoming the person people enjoy talking to.",
+        "Your social stats are looking reasonably healthy."
+      ]
+    },
+    {
+      "min": 500,
+      "max": 699,
+      "title": "Smooth Operator",
+      "messages": [
+        "You make awkward pauses feel like intentional dramatic timing.",
+        "Your charm is doing steady, dependable work.",
+        "Good conversation seems to follow you around.",
+        "You can make an ordinary conversation surprisingly entertaining.",
+        "Your timing is good, and your jokes usually land.",
+        "You know how to keep a conversation balanced.",
+        "Your confidence is noticeable without being overwhelming.",
+        "You have mastered the art of a well-timed reply.",
+        "Your conversations have the smoothness of a freshly updated app.",
+        "You can turn a random topic into an interesting discussion.",
+        "Your social instincts are working overtime.",
+        "You have a talent for making people feel included."
+      ]
+    },
+    {
+      "min": 700,
+      "max": 849,
+      "title": "Certified Charmer",
+      "messages": [
+        "You could make small talk sound like a season finale.",
+        "The room has noticed your excellent conversation skills.",
+        "Your confidence and kindness are working as a team.",
+        "Your humor has achieved certified status.",
+        "You make first impressions feel surprisingly effortless.",
+        "Your conversational timing deserves its own soundtrack.",
+        "You can make people laugh without even trying too hard.",
+        "Your charisma has entered its professional era.",
+        "You know how to compliment people without making it awkward.",
+        "Your social presence makes conversations more enjoyable.",
+        "You have the rare ability to make almost any topic interesting.",
+        "Your personality is carrying the conversation in the best way."
+      ]
+    },
+    {
+      "min": 850,
+      "max": 949,
+      "title": "Rizz Legend",
+      "messages": [
+        "Your charm has earned its own highlight reel.",
+        "You are one great conversation away from local legend status.",
+        "Even your introductions have excellent timing.",
+        "Your charisma has become server-wide knowledge.",
+        "People remember your conversations for all the right reasons.",
+        "Your humor and confidence make an excellent combination.",
+        "Your social skills have reached legendary proportions.",
+        "You can turn a random chat into a memorable moment.",
+        "Your replies arrive with impeccable comedic timing.",
+        "Your conversational game belongs in the hall of fame.",
+        "Your confidence makes a strong impression without stealing the spotlight.",
+        "The group chat gets more entertaining when you show up."
+      ]
+    },
+    {
+      "min": 950,
+      "max": 999,
+      "title": "Multiversal Rizz",
+      "messages": [
+        "Several timelines have requested your conversation tips.",
+        "Your charisma has achieved interdimensional signal strength.",
+        "Reality itself seems happy to hear you speak.",
+        "Alternate universes are studying your conversation techniques.",
+        "Your charm has crossed dimensions without losing connection.",
+        "The multiverse has unanimously approved your introduction.",
+        "Your social stats are breaking the laws of probability.",
+        "Even alternate versions of you are asking for advice.",
+        "Your charisma has reached a level that requires its own timeline.",
+        "Every dimension has a different name for your legendary charm.",
+        "The cosmic council has added your conversation skills to its archives."
+      ]
+    },
+    {
+      "min": 1000,
+      "max": 1000,
+      "title": "Absolute Rizz Singularity",
+      "messages": [
+        "The charm has folded spacetime into a friendly hello.",
+        "A perfect score. Please remain kind to the laws of physics.",
+        "Every universe agrees: that was a very good introduction.",
+        "You have achieved the theoretical maximum of conversational charisma.",
+        "The laws of physics have temporarily surrendered to your charm.",
+        "Your rizz is so powerful that the scoreboard needs scientific review.",
+        "The multiverse has stopped calculating and simply applauded.",
+        "One hello from you has become a historical event across dimensions.",
+        "The universe has declared your charisma a fundamental force.",
+        "Reality has reached its final form: your conversation skills."
+      ]
+    }
+  ]
+}

@@ -502,6 +502,7 @@ test("bot bootstrap connects MongoDB before registering listeners and logging in
     let databaseConnected = false;
     let countingInitialized = false;
     let economyInitialized = false;
+    let funStorageInitialized = false;
     let loggedIn = false;
     class MockClient extends EventEmitter {
         constructor(options) {
@@ -545,6 +546,14 @@ test("bot bootstrap connects MongoDB before registering listeners and logging in
         if (parent.filename === indexPath && request === "./services/reminder-storage") {
             return { initializeReminderStorage: async () => {} };
         }
+        if (parent.filename === indexPath && request === "./services/fun-commands") {
+            return {
+                initializeFunStorage: async () => {
+                    assert.equal(databaseConnected, true);
+                    funStorageInitialized = true;
+                }
+            };
+        }
         const loaded = originalLoad.call(this, request, parent, isMain);
         return request === "discord.js"
             ? { ...loaded, Client: MockClient }
@@ -559,11 +568,13 @@ test("bot bootstrap connects MongoDB before registering listeners and logging in
         delete require.cache[indexPath];
     }
 
-    assert.equal(client.commands.size, 60);
+    assert.equal(client.commands.size, fs.readdirSync(path.join(__dirname, "..", "commands"))
+        .filter(file => file.endsWith(".js")).length);
     assert(client.listenerCount("interactionCreate") > 0);
     assert(client.listenerCount("messageCreate") > 0);
     assert.equal(client.options.intents.includes(discord.GatewayIntentBits.GuildMembers), true);
     assert.equal(countingInitialized, true);
     assert.equal(economyInitialized, true);
+    assert.equal(funStorageInitialized, true);
     assert.equal(loggedIn, true);
 });

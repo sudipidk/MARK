@@ -27,6 +27,22 @@ Suggestion IDs and votes persist in JSON. Users may change a pending suggestion 
 
 Moderation log entries are emitted for moderation actions MARK performs through its commands. Actions taken manually in Discord or by another bot are not monitored through audit-log events.
 
+## Social and fun commands
+
+The permanent global entertainment tests are `/dnatest [user]`, `/gaytest [user]`, `/iqtest [user]`, `/lovetest user1 user2`, `/rizztest [user]`, and `/lucktest [user]`. Their prefix forms are `m!dnatest [@user]`, `m!gaytest [@user]`, `m!iqtest [@user]`, `m!lovetest @user1 @user2`, `m!rizztest [@user]`, and `m!lucktest [@user]`. Results are keyed by Discord user IDs, never server IDs or usernames. DNA's Gay, Rizz, and Luck traits read the same saved results as their individual tests. DNA and IQ scores are fictional entertainment only; they are not scientific or clinical assessments.
+
+`/chatest [user]` and `m!chatest [@user]` show the user's stable global character assignment. `/charoll [user]` and `m!charoll [@user]` create a first assignment or reroll after the global 24-hour cooldown. A successful assignment starts a new 24-hour cooldown; concurrent requests cannot produce multiple rerolls. The cooldown and selected message persist in MongoDB across servers and restarts.
+
+Social commands are `/roast user`, `/compliment user`, `/kill user`, and `/kiss user`, with matching `m!roast @user`, `m!compliment @user`, `m!kill @user`, and `m!kiss @user` forms. These choose a weighted outcome and a random message for each invocation. Responses remain fictional, playful, and non-explicit.
+
+`/help` includes all of the tests, character, and social commands, and shows the matching `m!` forms where available. `/characters [page]` lists the character catalogue by name and source only; it intentionally does not display character messages.
+
+Edit `data/chatest.json` to add or change characters: each entry needs a unique lowercase `id`, `name`, optional `source`, `enabled` boolean, and one or more `messages`. Set `enabled` to `false` to exclude a character from future assignments; existing assignments remain unchanged. Add new traits by editing `data/dna-traits.json` with a stable `id`, display `name`, and `max`; existing profiles receive only missing trait IDs. `sharedScore` is reserved for the existing shared scores `gay`, `rizz`, and `luck`.
+
+Edit `data/roast.json`, `data/compliment.json`, `data/kill.json`, and `data/kiss.json` to expand social message categories. Each outcome has an `id`, integer `weight`, and a `messages` array; outcome weights must total exactly 100. Each invocation chooses a weighted category first, then a message within it. Invalid social libraries are logged and use a small safe fallback. Supported placeholders are `{author}`, `{target}`, `{authorName}`, and `{targetName}`. Score descriptions are editable in `data/rizz.json`, `data/luck.json`, and `data/iq-bands.json`; saved scores do not change when descriptions are edited. Love-test messages are in `data/lovetest.json`; a pair's selected category and message are saved with its score.
+
+Fun data uses the shared `MARK` MongoDB database and initializes unique indexes for global scores, DNA profiles, and character assignments at startup. Deploy the added slash commands with `npm run deploy`; deployment remains global, with the optional `GUILD_ID` mirror available for testing. Repository `data/` JSON catalogues are bundled with the app and do not require a writable Railway volume.
+
 ## Persistent storage
 
 Counting configuration and statistics are stored in the MongoDB `MARK.counting` collection, with one document per Discord server. AFK state and reminders persist in the `MARK.afk` and `MARK.reminders` collections. Reminder deliveries are atomically claimed to prevent duplicate delivery; if the process restarts during a DM attempt, the reminder is marked failed because Discord does not provide a transaction with MongoDB to safely retry that uncertain delivery. Legacy counting JSON is imported with `npm run migrate:counting`. Moderation configuration, suggestions, and other JSON data are written to `data/` by default; set `BOT_DATA_DIR` to a writable persistent directory in production for those features. `COUNTING_DATA_DIR` remains supported as the legacy JSON import directory when `BOT_DATA_DIR` is not set.

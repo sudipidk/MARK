@@ -19,6 +19,17 @@ function readJsonFile(fileName, defaultValue) {
     return data;
 }
 
+function readBundledJsonFile(fileName, defaultValue) {
+    const filePath = path.join(__dirname, "..", "data", fileName);
+    if (!fs.existsSync(filePath)) return defaultValue;
+
+    const data = JSON.parse(fs.readFileSync(filePath, "utf8"));
+    if (!data || typeof data !== "object" || Array.isArray(data)) {
+        throw new Error(`${fileName} must contain a JSON object.`);
+    }
+    return data;
+}
+
 function updateJsonFile(fileName, updater, defaultValue = {}) {
     const data = readJsonFile(fileName, defaultValue);
     updater(data);
@@ -35,5 +46,6 @@ function updateJsonFile(fileName, updater, defaultValue = {}) {
 module.exports = {
     getDataDirectory,
     readJsonFile,
+    readBundledJsonFile,
     updateJsonFile
 };

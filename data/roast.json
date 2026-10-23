@@ -1,0 +1,198 @@
+{
+  "outcomes": [
+    {
+      "id": "general",
+      "weight": 35,
+      "messages": [
+        "{targetName}, your attention span has a loading screen.",
+        "{targetName}, you bring a whole new meaning to 'work in progress.'",
+        "{targetName}, your plans have more plot holes than a soap opera.",
+        "{targetName}, even your autocorrect has started asking for clarification.",
+        "{targetName}, you have the confidence of a tutorial you skipped.",
+        "{targetName}, your calendar looks like it was organized by a raccoon.",
+        "{targetName}, your brain has 47 tabs open and the music is coming from one.",
+        "{targetName}, your sense of direction could get lost in a revolving door.",
+        "{targetName}, you could lose an argument with a loading screen.",
+        "{targetName}, your train of thought just announced a platform change.",
+        "{targetName}, your common sense is currently out of office.",
+        "{targetName}, you treat simple instructions like optional side quests.",
+        "{targetName}, your decision-making process needs a committee.",
+        "{targetName}, your brain has a terms-and-conditions page nobody reads.",
+        "{targetName}, you make overthinking look like an Olympic event.",
+        "{targetName}, your plans need a plan to organize the other plans.",
+        "{targetName}, you could turn a two-minute task into a trilogy.",
+        "{targetName}, your memory has the storage capacity of a goldfish with Wi-Fi.",
+        "{targetName}, your excuses deserve their own streaming service.",
+        "{targetName}, you bring tutorial-level confidence to expert-level problems.",
+        "{targetName}, your logic took a vacation and forgot to tell you.",
+        "{targetName}, you have the reaction time of a sleepy calculator.",
+        "{targetName}, your brain's loading bar has been stuck at 73% for years.",
+        "{targetName}, you could make a straight line look like a maze.",
+        "{targetName}, your priorities were selected by a spinning wheel.",
+        "{targetName}, you have a PhD in making things unnecessarily complicated.",
+        "{targetName}, your organization system appears to be controlled chaos without the control.",
+        "{targetName}, even your backup plan needs a backup plan.",
+        "{targetName}, your confidence arrives five minutes before your preparation.",
+        "{targetName}, you could get distracted while reading the word 'focus.'",
+        "{targetName}, your schedule looks like a puzzle missing half the pieces.",
+        "{targetName}, you turn minor inconveniences into season finales.",
+        "{targetName}, your internal narrator probably needs a fact-checker.",
+        "{targetName}, you have the strategic instincts of a confused shopping cart.",
+        "{targetName}, your productivity app has officially stopped believing in you."
+      ]
+    },
+    {
+      "id": "gaming",
+      "weight": 10,
+      "messages": [
+        "{targetName}, you play like the tutorial is still negotiating with you.",
+        "{targetName}, your aim is a strong supporter of the scenery.",
+        "{targetName}, you have the rare skill of speedrunning the respawn screen.",
+        "{targetName}, the game gave you a quest marker and you wandered into a wall.",
+        "{targetName}, your controller filed a request for a more reliable teammate.",
+        "{targetName}, your crosshair has never met your target.",
+        "{targetName}, your K/D ratio looks like a cry for a strategy guide.",
+        "{targetName}, you loot everything except the item you actually need.",
+        "{targetName}, the enemy team sends you thank-you cards.",
+        "{targetName}, you could miss a stationary target with guided instructions.",
+        "{targetName}, your movement looks like your keyboard is haunted.",
+        "{targetName}, you treat every boss fight like an optional loss.",
+        "{targetName}, your gaming chair deserves more XP than you.",
+        "{targetName}, the tutorial NPC is considering filing a resignation.",
+        "{targetName}, your strategy is to press every button and hope for lore."
+      ]
+    },
+    {
+      "id": "coding",
+      "weight": 10,
+      "messages": [
+        "{targetName}, your code has more plot twists than a mystery novel.",
+        "{targetName}, the bug report simply says 'it was like that when I got here.'",
+        "{targetName}, your variable names look like keyboard sneezes.",
+        "{targetName}, your program works perfectly as long as nobody runs it.",
+        "{targetName}, even the semicolon is considering a career change.",
+        "{targetName}, your code compiles only when the compiler feels generous.",
+        "{targetName}, your debugging strategy is changing things until the errors change.",
+        "{targetName}, your indentation has more personality than your documentation.",
+        "{targetName}, the stack trace is longer than your entire explanation.",
+        "{targetName}, your functions have commitment issues and return nothing.",
+        "{targetName}, your code comments read like messages from a past civilization.",
+        "{targetName}, Git saw your commit and asked if you were sure.",
+        "{targetName}, your program has more exceptions than a school timetable.",
+        "{targetName}, you named the variable 'thing' and called it architecture.",
+        "{targetName}, your code is technically a solution to a different problem."
+      ]
+    },
+    {
+      "id": "discord",
+      "weight": 10,
+      "messages": [
+        "{targetName}, your status says online, but your replies are in another timezone.",
+        "{targetName}, you have enough muted channels to start a quiet museum.",
+        "{targetName}, your notification count has its own zip code.",
+        "{targetName}, you joined voice chat just to become an ambient sound.",
+        "{targetName}, even your typing indicator needs a pep talk.",
+        "{targetName}, you write 'lol' with the emotional range of a spreadsheet.",
+        "{targetName}, your Discord activity is more consistent than your sleep schedule.",
+        "{targetName}, you spend more time choosing an emoji than writing a sentence.",
+        "{targetName}, your unread messages have formed a government.",
+        "{targetName}, you join a conversation three hours after the topic changes.",
+        "{targetName}, your profile status is doing all the socializing for you.",
+        "{targetName}, your messages arrive with the delivery speed of postal mail.",
+        "{targetName}, you have mastered the art of being online and unavailable.",
+        "{targetName}, your Discord notifications could qualify as a natural disaster.",
+        "{targetName}, you react to messages like you're reviewing museum exhibits."
+      ]
+    },
+    {
+      "id": "absurd",
+      "weight": 10,
+      "messages": [
+        "{targetName}, a confused pigeon just asked you for directions.",
+        "{targetName}, your aura has been mistaken for a mildly haunted toaster.",
+        "{targetName}, a committee of potatoes has reviewed your posture.",
+        "{targetName}, your shadow filed a complaint about your walking pace.",
+        "{targetName}, the moon called; it wants its weird energy back.",
+        "{targetName}, three ducks just formed a support group after meeting you.",
+        "{targetName}, your reflection needs a moment to process what it sees.",
+        "{targetName}, a sentient spoon has challenged you to a debate.",
+        "{targetName}, your vibes made a microwave forget its own timer.",
+        "{targetName}, a flock of pigeons has unanimously voted to mute you.",
+        "{targetName}, your imaginary friend has requested a different roommate.",
+        "{targetName}, a potato just looked at you and felt intellectually superior.",
+        "{targetName}, your aura smells like a printer jam in another dimension.",
+        "{targetName}, the local squirrels have added you to their watchlist.",
+        "{targetName}, a haunted calculator just displayed 'please stop.'"
+      ]
+    },
+    {
+      "id": "reverse",
+      "weight": 5,
+      "messages": [
+        "{authorName}, your roast boomeranged so hard it brought snacks for {targetName}.",
+        "{authorName}, that joke landed on your own shoes. {targetName} remains untouched.",
+        "{authorName}, your roast took a U-turn and asked you for directions.",
+        "{authorName}, you aimed at {targetName} and somehow roasted your own reflection.",
+        "{authorName}, the roast was so weak that {targetName} offered it a blanket.",
+        "{authorName}, your punchline filed for witness protection before reaching {targetName}.",
+        "{authorName}, you roasted yourself so efficiently that {targetName} can go home early.",
+        "{authorName}, the joke circled the room twice before landing on you.",
+        "{authorName}, your roast has been returned to sender due to insufficient impact.",
+        "{authorName}, even {targetName} is trying to help you finish that insult."
+      ]
+    },
+    {
+      "id": "target-escapes",
+      "weight": 5,
+      "messages": [
+        "{targetName} dodged the roast with expert timing. The crowd applauds.",
+        "{targetName} escaped the roast; the dramatic smoke machine is still running.",
+        "{targetName} sidestepped the joke and left a tiny cloud of confetti.",
+        "{targetName} evaded the roast. A suspiciously convenient door appeared.",
+        "{targetName} activated a smoke bomb and vanished before the punchline.",
+        "{targetName} dodged so smoothly that the roast hit the furniture.",
+        "{targetName} used the ancient technique known as changing the subject.",
+        "{targetName} escaped with zero damage and a suspiciously smug expression.",
+        "{targetName} parried the roast with a perfectly timed meme.",
+        "{targetName} has left the roast arena. Their record remains unblemished."
+      ]
+    },
+    {
+      "id": "too-majestic",
+      "weight": 5,
+      "messages": [
+        "{targetName} is too majestic to roast. The microphone has been respectfully returned.",
+        "{targetName} radiates such excellence that the roast has become a compliment.",
+        "{targetName} has been declared roast-proof by an independent committee of pigeons.",
+        "{targetName} entered the room and the insults immediately became compliments.",
+        "{targetName} is operating at a level the roast department cannot legally discuss.",
+        "{targetName} has achieved such greatness that the punchline resigned.",
+        "{targetName} is so unbothered that the roast apologized for interrupting.",
+        "{targetName} cannot be roasted; the fire department has been notified anyway.",
+        "{targetName} has a legendary defense stat and absolutely no openings.",
+        "{targetName} is too iconic for this roast. Please try again next century."
+      ]
+    },
+    {
+      "id": "legendary",
+      "weight": 10,
+      "messages": [
+        "{targetName}, your group chat has a search bar and still cannot find your point.",
+        "{targetName}, you are the human version of a software update at 99 percent.",
+        "{targetName}, if overthinking were a sport, you would still be checking the rules.",
+        "{targetName}, you are proof that confidence and instructions are optional.",
+        "{targetName}, your strategy is so mysterious that even you are waiting for the reveal.",
+        "{targetName}, your life has more unfinished side quests than an open-world game.",
+        "{targetName}, your brain runs on trial software and the license expired yesterday.",
+        "{targetName}, your personal lore has more filler episodes than actual progress.",
+        "{targetName}, even your potential is waiting for you to get started.",
+        "{targetName}, you could turn a victory lap into a navigation error.",
+        "{targetName}, your reputation loads slower than a website on airport Wi-Fi.",
+        "{targetName}, you are the plot twist nobody bothered to foreshadow.",
+        "{targetName}, your thought process needs director's commentary.",
+        "{targetName}, you have the energy of a final boss with tutorial-level mechanics.",
+        "{targetName}, your master plan looks suspiciously like a random number generator."
+      ]
+    }
+  ]
+}

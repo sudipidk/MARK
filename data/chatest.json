@@ -1,0 +1,886 @@
+{
+  "characters": [
+    {
+      "id": "batman",
+      "name": "Batman",
+      "source": "DC Comics",
+      "enabled": true,
+      "messages": [
+        "You have a contingency plan for your contingency plan. Respect.",
+        "The night is dark, and your browser tabs are somehow darker.",
+        "You don't need superpowers when your preparation is this unreasonable.",
+        "Your trust issues have officially reached Gotham City levels.",
+        "You analyzed the entire situation and still forgot your homework.",
+        "Your sleep schedule is the greatest unsolved mystery in Gotham.",
+        "You work alone, mostly because nobody understands your planning documents.",
+        "Your detective instincts are excellent. Your ability to find your keys is not.",
+        "You have the energy of someone who investigates suspicious notifications.",
+        "Gotham needs a hero. Your group project needs someone who actually replies."
+      ]
+    },
+    {
+      "id": "superman",
+      "name": "Superman",
+      "source": "DC Comics",
+      "enabled": true,
+      "messages": [
+        "You have heroic potential and absolutely no idea what to do with it.",
+        "Your optimism could probably power the Fortress of Solitude.",
+        "You try to save everyone, including people who never read the instructions.",
+        "Even with superpowers, you would still struggle to wake up on Monday.",
+        "Your heart is in the right place. Your time management needs work.",
+        "You bring main-character energy without needing a dramatic soundtrack.",
+        "You could probably lift a building, but can you lift your grades?",
+        "Your kindness is your greatest strength. Your procrastination is your weakness.",
+        "The world could use more people like you. Your alarm clock could use fewer snoozes.",
+        "You have the potential to become someone's favorite hero."
+      ]
+    },
+    {
+      "id": "wonder-woman",
+      "name": "Wonder Woman",
+      "source": "DC Comics",
+      "enabled": true,
+      "messages": [
+        "Your confidence could silence an entire room without raising your voice.",
+        "You have the determination of a warrior and the patience of a saint.",
+        "You don't need permission to prove what you can do.",
+        "Your standards are high, and honestly, that is understandable.",
+        "You could turn an ordinary afternoon into an epic adventure.",
+        "Your diplomacy is impressive, considering how ridiculous people can be.",
+        "You face challenges directly instead of writing dramatic speeches about them.",
+        "Your courage is admirable. Your decision-making could still use a committee.",
+        "You have the energy of someone who refuses to lose an argument.",
+        "The world needs your strength, wisdom, and occasional ability to say no."
+      ]
+    },
+    {
+      "id": "the-joker",
+      "name": "The Joker",
+      "source": "DC Comics",
+      "enabled": true,
+      "messages": [
+        "Your plans are so chaotic that even your backup plan requested a transfer.",
+        "You walked into the conversation with confidence and left with three new problems.",
+        "Your sense of humor is questionable, but at least your commitment is impressive.",
+        "You have turned a minor inconvenience into a five-season psychological drama.",
+        "Your serious face is doing an excellent comedy routine.",
+        "You don't need an enemy when your own decisions provide this much entertainment.",
+        "Your group chat has more plot twists than your actual life.",
+        "You call it improvisation. Everyone else calls it not reading the instructions.",
+        "You have the mysterious energy of someone who forgot why they entered the room.",
+        "Even chaos needs a schedule, and yours is completely unavailable."
+      ]
+    },
+    {
+      "id": "the-flash",
+      "name": "The Flash",
+      "source": "DC Comics",
+      "enabled": true,
+      "messages": [
+        "You move quickly when snacks are involved. Everything else is another story.",
+        "Your thoughts run at superspeed, but your decisions are still buffering.",
+        "You could finish everything early if you stopped opening new tabs.",
+        "Your reaction time is excellent when somebody mentions your name.",
+        "You have the speed of a superhero and the punctuality of a broken clock.",
+        "You ran through the entire plan without checking where the finish line was.",
+        "Your attention span just completed a marathon in the wrong direction.",
+        "You are fast at replying when the conversation is interesting.",
+        "You have unlimited potential and a very limited sense of urgency.",
+        "You don't need super-speed. You need to start five minutes earlier."
+      ]
+    },
+    {
+      "id": "superman-clark",
+      "name": "Clark Kent",
+      "source": "DC Comics",
+      "enabled": true,
+      "messages": [
+        "You have mastered the art of looking normal while overthinking everything.",
+        "Your secret identity is probably just someone who needs more sleep.",
+        "You observe everything quietly, then ask what happened five minutes ago.",
+        "You are surprisingly good at blending into the background.",
+        "Your glasses are doing more work than your current productivity system.",
+        "You have the patience of a journalist waiting for a source to reply.",
+        "You can keep a secret, provided it isn't written in the group chat.",
+        "You make ordinary life look easy, even when it clearly isn't.",
+        "You have a heroic sense of responsibility and a questionable coffee schedule.",
+        "Sometimes the most impressive thing you can do is simply show up."
+      ]
+    },
+    {
+      "id": "iron-man",
+      "name": "Tony Stark",
+      "source": "Marvel",
+      "enabled": true,
+      "messages": [
+        "Your confidence is cutting-edge. Your sleep schedule is legacy software.",
+        "You have billionaire-level ideas and a suspiciously ordinary budget.",
+        "You could invent a solution, but first you need to find your charger.",
+        "Your ego has its own security clearance.",
+        "You solve problems by creating three more and calling it innovation.",
+        "Your brain runs premium software on a questionable cooling system.",
+        "You have a comeback ready before the other person finishes speaking.",
+        "You are proof that confidence and good planning are not the same thing.",
+        "Your next big invention should be a device that finishes your assignments.",
+        "You don't enter a room. You make an announcement with your entire personality."
+      ]
+    },
+    {
+      "id": "spider-man",
+      "name": "Spider-Man",
+      "source": "Marvel",
+      "enabled": true,
+      "messages": [
+        "You are doing your best while life throws another twenty problems at you.",
+        "Your jokes arrive faster than your notifications.",
+        "You have heroic potential and very ordinary snack priorities.",
+        "Your responsibilities are multiplying faster than your free time.",
+        "You can save the day, but you still need to finish that assignment.",
+        "You have mastered the art of being stressed and funny simultaneously.",
+        "Your life is one awkward conversation away from another origin story.",
+        "You are friendly, chaotic, and somehow still holding everything together.",
+        "Your plans are flexible because life keeps throwing you through walls.",
+        "You deserve a break. Even heroes need to log off sometimes."
+      ]
+    },
+    {
+      "id": "loki",
+      "name": "Loki",
+      "source": "Marvel",
+      "enabled": true,
+      "messages": [
+        "You deserve a crown, if only for surviving your own cleverness.",
+        "Your shortcut has somehow become an entire journey through the problem.",
+        "You have mastered the art of making questionable decisions sound inevitable.",
+        "Your confidence is divine. Your explanations require several footnotes.",
+        "You could manipulate an entire room and still lose an argument to autocorrect.",
+        "You enjoy being underestimated, especially when you have not prepared.",
+        "Your dramatic timing is excellent. Your arrival time is less impressive.",
+        "You have a talent for turning a minor disagreement into a multiversal event.",
+        "You are not necessarily wrong. You are simply committed to a very unusual interpretation.",
+        "Your plans are elegant, ambitious, and occasionally defeated by basic logistics."
+      ]
+    },
+    {
+      "id": "thanos",
+      "name": "Thanos",
+      "source": "Marvel",
+      "enabled": true,
+      "messages": [
+        "Your plans are enormous. Your calendar remains undefeated.",
+        "You speak of balance while adding seventeen tasks to the list.",
+        "You have the patience of a cosmic being waiting for everyone to understand the assignment.",
+        "Your ambition is universal. Your attention span is considerably smaller.",
+        "You could reorganize reality and still forget where you saved the document.",
+        "Your confidence suggests that the universe has already agreed with you.",
+        "You make every decision sound like the conclusion of a very long presentation.",
+        "You have a grand vision and absolutely no interest in a short explanation.",
+        "Even destiny would ask you to take a quiet afternoon.",
+        "You believe everything has a purpose, including that questionable purchase."
+      ]
+    },
+    {
+      "id": "deadpool",
+      "name": "Deadpool",
+      "source": "Marvel",
+      "enabled": true,
+      "messages": [
+        "You are the plot twist this group chat accidentally ordered.",
+        "Your inner narrator deserves its own entertainment budget.",
+        "This plan has fourth-wall confidence and first-draft spelling.",
+        "You have the attention span of a notification with legs.",
+        "Your life needs a narrator, a soundtrack, and probably an editor.",
+        "You make questionable choices look like bonus content.",
+        "Your humor is a little chaotic, but at least the commitment is consistent.",
+        "You would interrupt your own dramatic entrance to ask about lunch.",
+        "Your internal monologue has more dialogue than an entire movie.",
+        "You are somehow both the comic relief and the reason everyone needs a break."
+      ]
+    },
+    {
+      "id": "wolverine",
+      "name": "Wolverine",
+      "source": "Marvel",
+      "enabled": true,
+      "messages": [
+        "You have the patience of someone who has been asked the same question fifty times.",
+        "Your attitude says leave me alone. Your actions say you actually care.",
+        "You can handle almost anything except an unnecessarily long group discussion.",
+        "You keep your circle small and your opinions extremely direct.",
+        "You have a legendary ability to look annoyed while helping everyone.",
+        "Your idea of a peaceful afternoon involves nobody asking you for anything.",
+        "You are stubborn enough to make a locked door reconsider its career.",
+        "You pretend not to care, but you remember every little detail.",
+        "You have the energy of someone who has heard enough nonsense for three lifetimes.",
+        "Sometimes your best skill is knowing when to walk away."
+      ]
+    },
+    {
+      "id": "captain-america",
+      "name": "Captain America",
+      "source": "Marvel",
+      "enabled": true,
+      "messages": [
+        "You have strong principles and a surprisingly flexible snack schedule.",
+        "You show up when people need you. That is a rare kind of strength.",
+        "Your loyalty is impressive, even when your friends make questionable decisions.",
+        "You approach every problem like a team captain with a clipboard.",
+        "Your idea of rebellion is probably submitting something one minute late.",
+        "You have the determination of someone who refuses to leave a task unfinished.",
+        "You respect the rules, except when the instructions are genuinely confusing.",
+        "Your old-school values are impressive in a world of temporary group chats.",
+        "You could inspire an entire team with one well-timed speech.",
+        "You do not need to be the loudest person to be the most dependable."
+      ]
+    },
+    {
+      "id": "thor",
+      "name": "Thor",
+      "source": "Marvel",
+      "enabled": true,
+      "messages": [
+        "Your confidence arrives like thunder before anyone sees the clouds.",
+        "You treat minor inconveniences like battles worthy of a saga.",
+        "You have heroic strength and the snack preferences of a champion.",
+        "Your dramatic entrances deserve their own weather forecast.",
+        "You could lift a legendary hammer but struggle to lift your productivity.",
+        "Your optimism is enormous, even when the plan is completely falling apart.",
+        "You bring the energy of someone who thinks every weekend is a festival.",
+        "You have a royal attitude and a very approachable sense of humor.",
+        "Your group chat presence could probably summon a thunderstorm.",
+        "You are at your best when you remember that asking for help is not a weakness."
+      ]
+    },
+    {
+      "id": "hulk",
+      "name": "Hulk",
+      "source": "Marvel",
+      "enabled": true,
+      "messages": [
+        "Your patience is strong until somebody touches your food.",
+        "You have enormous potential and equally enormous reactions to minor inconveniences.",
+        "You try to stay calm, but the Wi-Fi has other plans.",
+        "Your emotions deserve a user manual and a troubleshooting guide.",
+        "You could move mountains if you stopped getting distracted.",
+        "Your quiet days are peaceful. Your frustrated days are very noticeable.",
+        "You are not angry at everyone. You are simply processing a lot at once.",
+        "Your energy level has only two settings: sleepy and unstoppable.",
+        "You have a powerful presence, even when you are just asking a question.",
+        "Taking a breath before replying might save an entire conversation."
+      ]
+    },
+    {
+      "id": "darth-vader",
+      "name": "Darth Vader",
+      "source": "Star Wars",
+      "enabled": true,
+      "messages": [
+        "Your inbox is vast, but your focus is stronger than it looks.",
+        "You bring dramatic energy to even the smallest group project.",
+        "Your calendar has more dark days than the galaxy.",
+        "You have mastered the art of making a simple request sound like an imperial order.",
+        "Your patience is legendary, right up until the printer stops working.",
+        "You do not need to raise your voice. Your presence already makes the room quiet.",
+        "You have a powerful reputation and a questionable bedtime.",
+        "Your plans are precise, provided nobody changes the meeting time.",
+        "You take everything seriously, including decisions about what to eat.",
+        "Even the most intimidating person needs someone to explain the settings menu."
+      ]
+    },
+    {
+      "id": "yoda",
+      "name": "Yoda",
+      "source": "Star Wars",
+      "enabled": true,
+      "messages": [
+        "Much potential, you have. Start the task, you must.",
+        "Impatience leads to mistakes. So does opening twenty tabs at once.",
+        "Your focus is strong when snacks are nearby.",
+        "Wisdom comes with experience. Better sleep helps too.",
+        "A difficult task, it may be. Impossible, it is not.",
+        "Your thoughts are deep. Your explanations could be shorter.",
+        "Procrastination, a powerful enemy, it is.",
+        "Confidence you need, but humility will help you learn.",
+        "The answer may be simple. Overthinking, you are.",
+        "Rest when you need it. Burnout, your destiny is not."
+      ]
+    },
+    {
+      "id": "harry-potter",
+      "name": "Harry Potter",
+      "source": "Harry Potter",
+      "enabled": true,
+      "messages": [
+        "Your life has enough plot twists to qualify for another school year at Hogwarts.",
+        "You have a talent for finding trouble in places that look perfectly ordinary.",
+        "Your friends are your greatest strength, especially when you forget the instructions.",
+        "You approach mysteries with courage and a concerning lack of preparation.",
+        "You could probably solve the problem faster if you asked for help sooner.",
+        "Your luck is suspiciously good for someone who rarely gets a quiet week.",
+        "You have the energy of someone who keeps discovering secret passages in their schedule.",
+        "You face challenges bravely, even when you have no idea what comes next.",
+        "You make ordinary days feel like the beginning of an adventure.",
+        "Your next mission is to get enough sleep before the next plot twist."
+      ]
+    },
+    {
+      "id": "voldemort",
+      "name": "Voldemort",
+      "source": "Harry Potter",
+      "enabled": true,
+      "messages": [
+        "Your ambition is enormous, but your planning still needs a second draft.",
+        "You have a dramatic presence and a very complicated personal brand.",
+        "You take competition seriously, even when the prize is completely meaningless.",
+        "Your long-term plans could use a little more flexibility.",
+        "You have a talent for making simple conversations unnecessarily intimidating.",
+        "Your desire to win is impressive. Remember to enjoy the game too.",
+        "You could organize an entire operation but still misplace the meeting notes.",
+        "You prefer control, which explains why group projects annoy you.",
+        "Your confidence is powerful, but listening is a skill worth developing.",
+        "Not every setback needs a grand revenge arc."
+      ]
+    },
+    {
+      "id": "wednesday-addams",
+      "name": "Wednesday Addams",
+      "source": "The Addams Family",
+      "enabled": true,
+      "messages": [
+        "Your enthusiasm is unsettling. I find it almost charming.",
+        "You have a talent for making a group chat feel like a mystery.",
+        "A cheerful plan? How suspicious. I will allow it.",
+        "Your facial expression has already submitted its resignation.",
+        "You can turn a perfectly normal conversation into an investigative report.",
+        "You prefer honesty, even when the truth needs a warning label.",
+        "Your social battery is currently unavailable for maintenance.",
+        "You have excellent taste in mysteries and questionable patience for small talk.",
+        "Your idea of a fun afternoon would concern several cheerful people.",
+        "You are not unfriendly. You simply have a very selective guest list."
+      ]
+    },
+    {
+      "id": "walter-white",
+      "name": "Walter White",
+      "source": "Breaking Bad",
+      "enabled": true,
+      "messages": [
+        "You have a talent for turning small errands into elaborate operations.",
+        "Your confidence is impressive. Perhaps let the spreadsheet drive.",
+        "You are clearly capable. Now explain that plan in one sentence.",
+        "You approach every minor problem like a high-stakes business negotiation.",
+        "Your attention to detail is excellent, except for the deadline in the corner.",
+        "You prefer having a plan, a backup plan, and a backup for the backup.",
+        "Your ambition is admirable. Your ability to relax needs some research.",
+        "You have the expression of someone who has calculated every possible outcome.",
+        "You can be very persuasive when you stop trying to control every detail.",
+        "Sometimes the simplest solution is better than the most elaborate one."
+      ]
+    },
+    {
+      "id": "saul-goodman",
+      "name": "Saul Goodman",
+      "source": "Breaking Bad",
+      "enabled": true,
+      "messages": [
+        "You deserve a break, and I know a highly reputable couch.",
+        "Your argument is convincing. Your deadline would like a word.",
+        "You can talk your way into anything, including another snack.",
+        "Your confidence could sell an umbrella during a drought.",
+        "You have a response for every question except what you are doing tomorrow.",
+        "Your explanations are polished enough to deserve their own presentation.",
+        "You negotiate like every conversation comes with a hidden discount.",
+        "Your plan has potential. I recommend adding a backup and a snack budget.",
+        "You have never met a simple question you could not answer with a five-minute speech.",
+        "You are very good at finding opportunities, especially when work is involved."
+      ]
+    },
+    {
+      "id": "eleven",
+      "name": "Eleven",
+      "source": "Stranger Things",
+      "enabled": true,
+      "messages": [
+        "You are stronger than you think, even on the days that feel strange.",
+        "Your friends matter more than any impossible challenge.",
+        "You have a quiet determination that people should never underestimate.",
+        "Your patience disappears when someone interrupts your favorite activity.",
+        "You do not need to explain everything to prove that you care.",
+        "You have a habit of surprising people who think they know your limits.",
+        "Your bravery grows when you have good people beside you.",
+        "You could solve the problem, but taking a break is also allowed.",
+        "Your focus is powerful when something genuinely matters to you.",
+        "You have come a long way. Give yourself credit for that."
+      ]
+    },
+    {
+      "id": "vecna",
+      "name": "Vecna",
+      "source": "Stranger Things",
+      "enabled": true,
+      "messages": [
+        "Your unfinished tasks have formed a rather unsettling pattern.",
+        "Your schedule has a strange habit of haunting your free time.",
+        "You overthink so much that even your thoughts need a day off.",
+        "Your notifications are gathering like an approaching storm.",
+        "You keep avoiding the task, yet somehow it always finds you.",
+        "Your room has developed an atmosphere that deserves its own soundtrack.",
+        "You have a mysterious talent for leaving everything until the last moment.",
+        "Your focus disappeared, and the search party is still looking.",
+        "Even your calendar seems concerned about next week.",
+        "Your best defense against stress is a plan that actually includes breaks."
+      ]
+    },
+    {
+      "id": "spongebob",
+      "name": "SpongeBob SquarePants",
+      "source": "SpongeBob SquarePants",
+      "enabled": true,
+      "messages": [
+        "Your optimism could brighten an entire underwater neighborhood.",
+        "You make ordinary plans feel like a very exciting field trip.",
+        "Keep that smile. Maybe bring a snack for the adventure.",
+        "You have the enthusiasm of someone who genuinely enjoys Mondays.",
+        "Your energy is unlimited until someone asks you to clean your room.",
+        "You turn a tiny success into a celebration worth inviting the whole town to.",
+        "You are proof that being a little weird can be a wonderful thing.",
+        "Your laugh could probably be heard from the next server over.",
+        "You find excitement in the smallest things, and that is a real talent.",
+        "Your day gets better whenever you remember to have fun."
+      ]
+    },
+    {
+      "id": "shrek",
+      "name": "Shrek",
+      "source": "Shrek",
+      "enabled": true,
+      "messages": [
+        "You have layers: confidence, snacks, and one more layer of snacks.",
+        "Your personal space is a kingdom. Guard it with a comfortable chair.",
+        "You are doing just fine. Even a swamp needs a day off.",
+        "You prefer a quiet life, but somehow drama keeps finding your doorstep.",
+        "You have the patience of someone who has explained the same thing repeatedly.",
+        "You are not antisocial. You simply appreciate peace and personal space.",
+        "Your ideal adventure ends with a full stomach and no extra responsibilities.",
+        "You have a strong personality and absolutely no interest in unnecessary drama.",
+        "Your comfort zone has a moat, a gate, and several warning signs.",
+        "You may be a little rough around the edges, but your loyalty is solid."
+      ]
+    },
+    {
+      "id": "mario",
+      "name": "Mario",
+      "source": "Super Mario",
+      "enabled": true,
+      "messages": [
+        "You keep jumping over obstacles, even when a normal path is available.",
+        "Your plans have more levels than the game you are supposed to be playing.",
+        "You have excellent timing, except when someone asks you to hurry up.",
+        "Your confidence increases dramatically after finding a useful shortcut.",
+        "You treat every small achievement like a new world has opened.",
+        "Your determination is impressive. Remember to check the map occasionally.",
+        "You can handle difficult levels, but the tutorial still deserves attention.",
+        "Your energy is contagious, especially when the competition begins.",
+        "You keep trying until you succeed, and that is worth celebrating.",
+        "Your next power-up should improve your ability to finish what you start."
+      ]
+    },
+    {
+      "id": "luigi",
+      "name": "Luigi",
+      "source": "Super Mario",
+      "enabled": true,
+      "messages": [
+        "You may be nervous, but you still show up when it matters.",
+        "Your courage is impressive, especially when the situation is unfamiliar.",
+        "You overthink the challenge before discovering you can handle it.",
+        "Your quiet approach should never be mistaken for a lack of ability.",
+        "You are the reliable friend who deserves more credit.",
+        "Your confidence grows after you take the first step.",
+        "You have a talent for noticing things everyone else overlooks.",
+        "You would rather avoid drama, but you know when to stand your ground.",
+        "You deserve to be the main character of your own success story.",
+        "You do not have to be the loudest person to make a difference."
+      ]
+    },
+    {
+      "id": "sonic",
+      "name": "Sonic the Hedgehog",
+      "source": "Sonic the Hedgehog",
+      "enabled": true,
+      "messages": [
+        "You are always in a hurry, even when absolutely nothing is happening.",
+        "Your attention span moves faster than your ability to finish a sentence.",
+        "You have unstoppable energy and a suspicious relationship with deadlines.",
+        "You love the fast route, even when it creates three extra problems.",
+        "Your confidence could outrun almost anything, including common sense.",
+        "You make everything a competition, even deciding who gets the last snack.",
+        "Your enthusiasm is excellent. Your patience could use an upgrade.",
+        "You can move fast, but sometimes stopping to think is the real shortcut.",
+        "Your friends can barely keep up with your latest idea.",
+        "You are at your best when you turn that energy into something worthwhile."
+      ]
+    },
+    {
+      "id": "steve-minecraft",
+      "name": "Steve",
+      "source": "Minecraft",
+      "enabled": true,
+      "messages": [
+        "You can build anything, provided you remember where the crafting table is.",
+        "Your inventory is full of plans and one suspicious block of dirt.",
+        "You have the energy of someone who mines all night and forgets breakfast.",
+        "Your house is unfinished, but you have already started another project.",
+        "You call it resource management. Everyone else sees six stacks of cobblestone.",
+        "You are perfectly capable of building a castle, one misplaced block at a time.",
+        "Your survival instincts are excellent until you walk into your own trap.",
+        "You have explored the entire world and still cannot find your bed.",
+        "Your greatest enemy is not a monster. It is your overflowing inventory.",
+        "You can turn a pile of blocks into something amazing. Keep building."
+      ]
+    },
+    {
+      "id": "herobrine",
+      "name": "Herobrine",
+      "source": "Minecraft folklore",
+      "enabled": true,
+      "messages": [
+        "I noticed that unfinished project. It has been waiting for quite some time.",
+        "Your browser tabs are multiplying. I have seen this before.",
+        "You thought you were alone, but your to-do list was watching.",
+        "Your world is peaceful, apart from the suspicious number of unfinished builds.",
+        "You looked away for one second and somehow lost the entire plan.",
+        "Your productivity has disappeared without leaving a single clue.",
+        "I have been observing your building choices. We need to discuss the roof.",
+        "Your storage system is so confusing that even the legends are concerned.",
+        "You keep saying one more task. The sun has set three times.",
+        "The real mystery is why you keep forgetting to save your progress."
+      ]
+    },
+    {
+      "id": "minecraft-villager",
+      "name": "Minecraft Villager",
+      "source": "Minecraft",
+      "enabled": true,
+      "messages": [
+        "Hmm. Your plan is acceptable. The snack price is not.",
+        "You have traded one hour for three more browser tabs.",
+        "Your ideas are valuable. Hmm. Very valuable.",
+        "I have reviewed your schedule. I would like to renegotiate.",
+        "Your productivity is interesting. Your inventory management is concerning.",
+        "Hmm. You should probably sleep before starting another project.",
+        "Your offer is tempting, but I require more emeralds.",
+        "You keep visiting the same problem without making a trade.",
+        "Hmm. That is certainly one way to organize your storage.",
+        "I have seen better deals, but I have also seen worse plans."
+      ]
+    },
+    {
+      "id": "master-chief",
+      "name": "Master Chief",
+      "source": "Halo",
+      "enabled": true,
+      "messages": [
+        "Mission objective: finish the task. Secondary objective: stop getting distracted.",
+        "You have the discipline to succeed. Follow the plan.",
+        "Your preparation is acceptable. Your backup strategy needs work.",
+        "You handle pressure well when you know what the objective is.",
+        "You are most effective when you stop trying to do everything alone.",
+        "Your equipment is ready. Your schedule is not.",
+        "You have a calm approach to situations that would confuse everyone else.",
+        "The mission can wait five minutes while you get some rest.",
+        "You have the mindset of someone who finishes what they start.",
+        "Objective complete. Remember to acknowledge your own progress."
+      ]
+    },
+    {
+      "id": "kratos",
+      "name": "Kratos",
+      "source": "God of War",
+      "enabled": true,
+      "messages": [
+        "Control your frustration before it controls the entire afternoon.",
+        "You have the determination of someone who refuses to quit.",
+        "Not every problem requires a dramatic response. Some require patience.",
+        "You are stronger when you listen instead of assuming you know everything.",
+        "Your responsibilities are heavy. Carry them one step at a time.",
+        "You have learned a lot. Do not let pride stop you from learning more.",
+        "The task is difficult. That does not make it impossible.",
+        "You prefer action over discussion, which is useful until instructions matter.",
+        "Your persistence is admirable. Remember that rest is part of the process.",
+        "Be patient with yourself. Progress does not always arrive immediately."
+      ]
+    },
+    {
+      "id": "lara-croft",
+      "name": "Lara Croft",
+      "source": "Tomb Raider",
+      "enabled": true,
+      "messages": [
+        "You have a talent for finding adventures where other people see obstacles.",
+        "Your curiosity is impressive. Your risk assessment needs a second opinion.",
+        "You approach every mystery like the answer is hidden behind a secret door.",
+        "You can handle complicated challenges when you trust your preparation.",
+        "Your backpack probably contains five things you do not need.",
+        "You prefer discovering the solution yourself, even when asking would be faster.",
+        "Your sense of adventure is excellent. Remember to bring a plan.",
+        "You have the determination to keep going when the path gets difficult.",
+        "You notice details other people miss. Use that skill more often.",
+        "Every challenge teaches you something, provided you stop long enough to notice."
+      ]
+    },
+    {
+      "id": "goku",
+      "name": "Goku",
+      "source": "Dragon Ball",
+      "enabled": true,
+      "messages": [
+        "Your appetite is legendary, but your homework still needs training.",
+        "You see every challenge as an opportunity to get stronger.",
+        "Your enthusiasm increases whenever someone mentions a competition.",
+        "You are friendly to everyone, including people who clearly need a break.",
+        "You have endless energy for your hobbies and mysteriously less for chores.",
+        "You learn best by trying, failing, and trying again.",
+        "Your confidence is high, even when you have no idea what the rules are.",
+        "You could turn an ordinary afternoon into a training montage.",
+        "You are at your best when you stay curious and keep improving.",
+        "Remember that even the strongest people need a proper rest."
+      ]
+    },
+    {
+      "id": "naruto",
+      "name": "Naruto Uzumaki",
+      "source": "Naruto",
+      "enabled": true,
+      "messages": [
+        "You have enough determination to keep an entire village motivated.",
+        "You refuse to give up, even when the task clearly needs a different strategy.",
+        "Your enthusiasm is loud, your loyalty is strong, and your plans are unpredictable.",
+        "You want everyone to recognize your potential. Start by recognizing it yourself.",
+        "Your energy could fill a stadium, but your room still needs cleaning.",
+        "You are stubborn in the best way when something truly matters to you.",
+        "You make friends easily, even when you start the conversation awkwardly.",
+        "You turn setbacks into motivation better than most people.",
+        "Your dreams are big. Give them the steady effort they deserve.",
+        "You do not have to prove everything in one day. Keep moving forward."
+      ]
+    },
+    {
+      "id": "luffy",
+      "name": "Monkey D. Luffy",
+      "source": "One Piece",
+      "enabled": true,
+      "messages": [
+        "Your priorities are simple: adventure, friends, and probably food.",
+        "You have a talent for making complicated plans much more complicated.",
+        "Your loyalty is unquestionable, even when your reasoning is difficult to follow.",
+        "You follow your dreams with the confidence of someone who never read the risks.",
+        "Your attention moves on whenever something more interesting appears.",
+        "You would rather try something difficult than spend all day worrying about it.",
+        "Your friends know they can count on you when it matters.",
+        "You bring chaotic energy to every situation and somehow make it work.",
+        "Your ambition is enormous. Your patience for boring explanations is not.",
+        "Keep your sense of adventure, but remember to think before you leap."
+      ]
+    },
+    {
+      "id": "light-yagami",
+      "name": "Light Yagami",
+      "source": "Death Note",
+      "enabled": true,
+      "messages": [
+        "Your plan is meticulous. Your notes app is becoming a novel.",
+        "You have a powerful sense of justice about who took the last cookie.",
+        "A clever strategy still benefits from a decent night's sleep.",
+        "You analyze every possibility until the original opportunity disappears.",
+        "Your confidence is impressive, but other people's perspectives matter too.",
+        "You enjoy being right so much that you occasionally forget to listen.",
+        "Your planning skills are excellent. Try applying them to your daily routine.",
+        "You have the energy of someone who has already calculated every conversation.",
+        "Not every disagreement needs to become a battle of intelligence.",
+        "Sometimes the smartest move is to admit that you might be mistaken."
+      ]
+    },
+    {
+      "id": "sherlock-holmes",
+      "name": "Sherlock Holmes",
+      "source": "Sherlock Holmes",
+      "enabled": true,
+      "messages": [
+        "The clues point to a simple solution: you need a cup of tea.",
+        "Your powers of deduction are excellent. Your socks disagree.",
+        "A mystery remains: why did you open this app in the first place?",
+        "You noticed every detail except the message asking you to reply.",
+        "Your brain has solved six imaginary cases instead of one real task.",
+        "You can analyze a conversation for hours and still miss the obvious.",
+        "Your curiosity is a strength. Your habit of overthinking is a side effect.",
+        "You have a remarkable eye for detail and a terrible sense of where you left things.",
+        "The evidence suggests that you need a break, not another theory.",
+        "Case closed. The missing productivity was hiding behind your notifications."
+      ]
+    },
+    {
+      "id": "john-wick",
+      "name": "John Wick",
+      "source": "John Wick",
+      "enabled": true,
+      "messages": [
+        "You have a quiet focus that makes deadlines reconsider their decisions.",
+        "Your day has been difficult. Take the evening off; that is an order.",
+        "You seem calm. Your calendar appears to disagree.",
+        "You do not waste words, which makes your rare speeches surprisingly effective.",
+        "You prefer peace, but you are prepared when a challenge arrives.",
+        "Your patience is remarkable until someone disrupts your routine.",
+        "You have the energy of someone who takes their responsibilities seriously.",
+        "You keep your promises, even when keeping them is inconvenient.",
+        "Your best work happens when you eliminate distractions.",
+        "You deserve a peaceful day with absolutely no unnecessary complications."
+      ]
+    },
+    {
+      "id": "barbie",
+      "name": "Barbie",
+      "source": "Barbie",
+      "enabled": true,
+      "messages": [
+        "You can be anything, including the person who finally finishes that project.",
+        "Your confidence deserves a spotlight and a very organized calendar.",
+        "You bring main-character energy to the most ordinary situations.",
+        "Your style is personal, your goals are ambitious, and your plans need dates.",
+        "You have a talent for making a difficult day feel more manageable.",
+        "You deserve to take up space without apologizing for being yourself.",
+        "Your creativity is a strength. Give it room to grow.",
+        "You can reinvent your plans without reinventing your entire personality.",
+        "Your future has plenty of possibilities. Start with the next small step.",
+        "You do not have to be perfect to make today a good day."
+      ]
+    },
+    {
+      "id": "patrick-bateman",
+      "name": "Patrick Bateman",
+      "source": "American Psycho",
+      "enabled": true,
+      "messages": [
+        "Your morning routine has the confidence of a luxury brochure.",
+        "That outfit says ambition. Those shoes say long meeting.",
+        "Your playlist is excellent. Your decision to skip breakfast is not.",
+        "You have spent twenty minutes optimizing a routine that takes five.",
+        "Your personal standards are high, especially for things nobody else noticed.",
+        "You treat choosing a profile picture like a corporate merger.",
+        "Your attention to presentation is impressive. Remember to finish the actual task.",
+        "You could turn buying a notebook into a full market analysis.",
+        "Your confidence looks expensive. Your calendar looks overbooked.",
+        "Sometimes a simple answer is more impressive than a perfectly polished explanation."
+      ]
+    },
+    {
+      "id": "michael-scott",
+      "name": "Michael Scott",
+      "source": "The Office",
+      "enabled": true,
+      "messages": [
+        "You are the regional manager of making this day work.",
+        "Your joke was almost too good. Almost.",
+        "A team meeting could help. Or snacks. Let's start with snacks.",
+        "You want everyone to like you, which is a full-time job by itself.",
+        "You have the confidence of a keynote speaker and the preparation of a last-minute student.",
+        "Your ideas are bold. Your execution could use a supporting team.",
+        "You make awkward moments memorable, whether you intend to or not.",
+        "You have a talent for turning a five-minute task into a group activity.",
+        "Your leadership style is best described as enthusiastic improvisation.",
+        "You bring personality to every room. Sometimes the room needs a minute."
+      ]
+    },
+    {
+      "id": "dwight-schrute",
+      "name": "Dwight Schrute",
+      "source": "The Office",
+      "enabled": true,
+      "messages": [
+        "Your preparedness is acceptable. Your desk organization needs discipline.",
+        "You have the energy of someone who packed emergency stationery.",
+        "A beet would improve this meeting. So would an agenda.",
+        "You treat every minor inconvenience like a training exercise.",
+        "Your standards are strict, and your patience for nonsense is limited.",
+        "You have already prepared for a problem that has not happened.",
+        "Your productivity system has a productivity system.",
+        "You prefer facts, structure, and people who actually read the instructions.",
+        "You are the person everyone calls when the backup plan needs a backup plan.",
+        "Your dedication is admirable. Occasionally, letting other people help is also efficient."
+      ]
+    },
+    {
+      "id": "michael-jackson",
+      "name": "Michael Jackson",
+      "source": "Music and pop culture",
+      "enabled": true,
+      "messages": [
+        "You have the confidence to turn an ordinary entrance into a whole performance.",
+        "Your sense of rhythm is excellent, even when your schedule is not.",
+        "You bring creative energy to everything you do.",
+        "You know how to make a memorable impression without saying much.",
+        "Your playlist is ready for a world tour. Your chores are still waiting backstage.",
+        "You have a flair for the dramatic and a talent for entertaining people.",
+        "You treat every small success like the closing number of a concert.",
+        "Your creativity deserves more time than your distractions currently allow.",
+        "You know that practice makes a difference, even when nobody is watching.",
+        "Your next performance should be finishing the task you have been postponing."
+      ]
+    },
+    {
+      "id": "donald-duck",
+      "name": "Donald Duck",
+      "source": "Disney",
+      "enabled": true,
+      "messages": [
+        "Your patience disappears faster than your free time.",
+        "You have strong opinions about situations that barely matter.",
+        "Your frustration is understandable. Your reaction is a little theatrical.",
+        "You can turn a minor inconvenience into an entire afternoon of complaints.",
+        "You are more capable than you give yourself credit for.",
+        "Your determination is admirable, even when your temper gets there first.",
+        "You have a talent for expressing exactly how you feel.",
+        "Your plans are solid until one small thing refuses to cooperate.",
+        "Take a breath. The problem is annoying, but it is not the end of the world.",
+        "You have a big heart underneath all that dramatic frustration."
+      ]
+    },
+    {
+      "id": "pikachu",
+      "name": "Pikachu",
+      "source": "Pokémon",
+      "enabled": true,
+      "messages": [
+        "Your energy level changes depending on who just entered the room.",
+        "You have a talent for making people smile without trying very hard.",
+        "Your loyalty is strong, and your enthusiasm is even stronger.",
+        "You are small on patience but enormous on personality.",
+        "You can brighten someone's day with the simplest gesture.",
+        "Your mood improves dramatically when your favorite person appears.",
+        "You bring a surprising amount of power to a very compact package.",
+        "Your friends know you are dependable when it counts.",
+        "You have the confidence to try again after a disappointing result.",
+        "Stay curious, stay kind, and remember to recharge."
+      ]
+    },
+    {
+      "id": "optimus-prime",
+      "name": "Optimus Prime",
+      "source": "Transformers",
+      "enabled": true,
+      "messages": [
+        "Your leadership is strongest when you remember to listen.",
+        "You carry responsibilities well, but you do not have to carry everything alone.",
+        "Your determination could keep an entire team moving forward.",
+        "You have a habit of choosing the difficult path because it feels meaningful.",
+        "Your plans are ambitious. Make sure everyone understands the mission.",
+        "You lead by example, which is more effective than a long speech.",
+        "Your loyalty is admirable, even when the situation becomes complicated.",
+        "You can be firm without forgetting to be kind.",
+        "Your next upgrade should improve your ability to delegate.",
+        "A good leader knows when to act and when to give others room to grow."
+      ]
+    }
+  ]
+}

@@ -1,0 +1,146 @@
+{
+  "categories": [
+    {
+      "id": "cosmic-comedy",
+      "min": 0,
+      "max": 19,
+      "messages": [
+        "The stars say your shared playlist needs a little work.",
+        "A legendary friendship arc is still a very good beginning.",
+        "The universe checked your compatibility and started laughing.",
+        "Your chemistry is currently buffering at 2%.",
+        "Cupid reviewed the results and requested technical support.",
+        "The stars recommend remaining excellent friends for now.",
+        "Your combined romantic energy could power a desk lamp.",
+        "Even the algorithm thinks you two need a patch update.",
+        "Your compatibility report came with a complimentary friendship badge.",
+        "The universe shipped you two as friends and closed the ticket.",
+        "Your love story is currently stuck in the tutorial.",
+        "The stars have decided to keep their opinions to themselves.",
+        "You have more plot twists than romantic tension.",
+        "Cupid accidentally sent your arrow to the wrong server.",
+        "Your duo has excellent comedy potential, if nothing else.",
+        "The compatibility calculator just displayed a shrug emoji.",
+        "Your relationship status is currently under scientific investigation.",
+        "The stars say you might agree on pizza toppings, at least.",
+        "Your chemistry experiment produced confetti instead of sparks.",
+        "The universe suggests starting with a conversation and a meme.",
+        "Your romantic subplot has been postponed until further notice.",
+        "Even a magic eight ball would need more information.",
+        "The cosmos has classified this pairing as an unexpected crossover.",
+        "Your shared destiny might involve arguing over what to watch.",
+        "The stars predict a suspicious number of awkward silences.",
+        "Your bond is giving sitcom pilot, not romantic finale.",
+        "Cupid's GPS appears to have lost signal.",
+        "Your love percentage has been replaced with a question mark.",
+        "The universe sees potential, but it also sees the chaos.",
+        "You two could make an incredible friendship origin story.",
+        "Your compatibility score is low, but your meme potential is high.",
+        "The stars recommend a rematch after you both get some sleep.",
+        "Romance may be uncertain, but the banter could be legendary.",
+        "Your duo has successfully unlocked the awkward introduction achievement.",
+        "The universe says not every great story needs romance."
+      ]
+    },
+    {
+      "id": "chaotic-sparks",
+      "min": 20,
+      "max": 39,
+      "messages": [
+        "Your chemistry is mostly spontaneous side quests.",
+        "Together you could turn a quiet afternoon into a story.",
+        "You share enough chaos to keep things interesting.",
+        "Your connection is unpredictable, like a season finale.",
+        "There might be sparks, but someone misplaced the instruction manual.",
+        "Your duo would absolutely get distracted halfway through a date.",
+        "You have the energy of two people sharing one brain cell.",
+        "The vibes are chaotic, but the entertainment value is undeniable.",
+        "You could spend hours talking and still forget the original topic.",
+        "Your compatibility is a work in progress with excellent plot twists.",
+        "One of you plans ahead; the other improvises everything.",
+        "Your conversations probably need their own highlight reel.",
+        "The chemistry is subtle, hiding somewhere behind the jokes.",
+        "Together, you could make an ordinary day unexpectedly memorable.",
+        "Your pairing has potential, provided chaos is part of the plan.",
+        "The universe sees a spark and several questionable decisions.",
+        "You might be opposites, but opposites can make great teammates.",
+        "Your connection is like a group chat that never stays on topic."
+      ]
+    },
+    {
+      "id": "good-vibes",
+      "min": 40,
+      "max": 59,
+      "messages": [
+        "There is a comfortable rhythm beneath the friendly chaos.",
+        "The vibes are promising; snacks and communication may help.",
+        "You seem capable of turning small moments into good memories.",
+        "Your compatibility is balanced, with room for surprises.",
+        "You could get along well when you both put in the effort.",
+        "The friendship foundation looks solid, and that matters.",
+        "Your conversations might flow better than this score suggests.",
+        "There is potential here, but nobody can predict feelings with a number.",
+        "You bring a reasonable mix of similarities and differences.",
+        "Your duo could thrive with honesty, patience, and shared interests.",
+        "The vibes are comfortable, like a familiar favorite song.",
+        "You may understand each other better than you realize.",
+        "Your compatibility suggests a promising foundation for getting closer.",
+        "You have enough common ground to start an interesting story."
+      ]
+    },
+    {
+      "id": "sweet-match",
+      "min": 60,
+      "max": 79,
+      "messages": [
+        "You share a warm connection and excellent meme potential.",
+        "This duo has real teamwork energy.",
+        "Your conversations could easily become the best part of the day.",
+        "The universe sees some genuinely promising vibes here.",
+        "You might make a great team both online and offline.",
+        "Your connection has the ingredients for plenty of good memories.",
+        "You seem to balance each other's personalities nicely.",
+        "Your duo could turn ordinary moments into favorite memories.",
+        "There is a sweet combination of comfort and excitement here.",
+        "Your compatibility score suggests some promising common ground.",
+        "You could be the kind of duo that laughs at the same nonsense.",
+        "The chemistry looks encouraging, but the real story is yours to write."
+      ]
+    },
+    {
+      "id": "storybook",
+      "min": 80,
+      "max": 94,
+      "messages": [
+        "Your bond could make even a group project feel delightful.",
+        "The two of you bring out some truly excellent energy.",
+        "This pairing has the makings of a memorable story.",
+        "Your shared vibe belongs in a feel-good montage.",
+        "You might understand each other's humor almost instantly.",
+        "The stars are giving this duo a very enthusiastic thumbs-up.",
+        "Your connection could make everyday adventures more fun.",
+        "You have strong best-friends-or-something-more energy.",
+        "The universe has noticed your impressive teamwork.",
+        "Your duo feels like the fan-favorite pairing in a sitcom.",
+        "You could turn shared interests into a genuinely special bond."
+      ]
+    },
+    {
+      "id": "legendary",
+      "min": 95,
+      "max": 100,
+      "messages": [
+        "The universe has added your duo to its favorites list.",
+        "An exceptionally powerful team-up. Please use your powers for good.",
+        "The stars have coordinated their schedules to celebrate this duo.",
+        "Your combined energy deserves its own cinematic universe.",
+        "Cupid has submitted a five-star review of your compatibility.",
+        "The cosmos has officially recognized your legendary duo status.",
+        "Your pairing has unlocked the secret ending of the compatibility game.",
+        "The universe is cheering for your excellent connection.",
+        "Your duo has the kind of energy that makes stories memorable.",
+        "Even the stars are impressed by this cosmic-level match."
+      ]
+    }
+  ]
+}

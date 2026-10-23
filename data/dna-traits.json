@@ -1,0 +1,19 @@
+{
+  "traits": [
+    { "id": "athlete", "name": "Athlete", "max": 100 },
+    { "id": "gamer", "name": "Gamer", "max": 100 },
+    { "id": "artist", "name": "Artist", "max": 100 },
+    { "id": "introvert", "name": "Introvert", "max": 100 },
+    { "id": "extrovert", "name": "Extrovert", "max": 100 },
+    { "id": "intelligence", "name": "Intelligence", "max": 100 },
+    { "id": "chaos", "name": "Chaos", "max": 100 },
+    { "id": "luck", "name": "Luck", "max": 100, "sharedScore": "luck" },
+    { "id": "rizz", "name": "Rizz", "max": 1000, "sharedScore": "rizz" },
+    { "id": "gay", "name": "Gay", "max": 100, "sharedScore": "gay" },
+    { "id": "female-energy", "name": "Female energy", "max": 100 },
+    { "id": "male-energy", "name": "Male energy", "max": 100 },
+    { "id": "villain-energy", "name": "Villain energy", "max": 100 },
+    { "id": "hero-energy", "name": "Hero energy", "max": 100 },
+    { "id": "main-character-energy", "name": "Main character energy", "max": 100 }
+  ]
+}

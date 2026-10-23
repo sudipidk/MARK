@@ -1,0 +1,9 @@
+{
+  "bands": [
+    { "min": 0, "max": 39, "title": "Plot Twist", "description": "The fictional scoreboard is having a dramatic day." },
+    { "min": 40, "max": 79, "title": "Warming Up", "description": "A modest meme score; the next idea may surprise everyone." },
+    { "min": 80, "max": 119, "title": "Steady Thinker", "description": "A balanced fictional score for a mind that keeps moving." },
+    { "min": 120, "max": 159, "title": "Quick Thinker", "description": "The imaginary gears are spinning at impressive speed." },
+    { "min": 160, "max": 200, "title": "Big Brain Energy", "description": "A spectacular entertainment score, with absolutely no lab coat involved." }
+  ]
+}

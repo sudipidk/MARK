@@ -1,0 +1,148 @@
+{
+  "bands": [
+    {
+      "min": 0,
+      "max": 9,
+      "title": "Cursed",
+      "messages": [
+        "Your umbrella opened indoors and it is still raining outside.",
+        "The coin landed on its edge, then rolled under the fridge.",
+        "Today has plot armor for the inconveniences.",
+        "Your alarm clock went off early, and it was the wrong day.",
+        "The elevator closed just as you reached the door.",
+        "Your favorite snack is sold out everywhere you look.",
+        "The Wi-Fi disconnected right before you clicked submit.",
+        "You dropped something, picked it up, and immediately dropped it again.",
+        "The one pen you need has mysteriously vanished.",
+        "Your shoelace came undone at the worst possible moment.",
+        "You finally got comfortable, then remembered an unfinished task.",
+        "The game crashed one second before your progress saved.",
+        "Your charger works only when held at a very specific angle.",
+        "You opened the fridge three times and still found nothing new.",
+        "The universe has placed you on its inconvenience subscription plan."
+      ]
+    },
+    {
+      "min": 10,
+      "max": 24,
+      "title": "Unlucky",
+      "messages": [
+        "The queue you chose has entered a mysterious pause.",
+        "Your toast landed butter-side down in a very theatrical way.",
+        "A minor inconvenience has sent a calendar invite.",
+        "You arrived just in time to see the bus leave.",
+        "The video buffered right before the best part.",
+        "Your favorite song ended as soon as you got into the mood.",
+        "You chose the slowest checkout line with impressive accuracy.",
+        "The download reached 99% and decided to think about life.",
+        "You forgot why you entered the room.",
+        "Your pen ran out of ink during the most important sentence.",
+        "The weather changed its mind five minutes after you left.",
+        "You finally found the answer, then the question disappeared.",
+        "The update started exactly when you needed your computer.",
+        "Your snack fell just out of reach.",
+        "You got the wrong answer after changing your correct one.",
+        "The one thing you need is always in the last place you check.",
+        "Your plans survived, but your schedule did not.",
+        "The universe gave you a small challenge instead of a reward."
+      ]
+    },
+    {
+      "min": 25,
+      "max": 49,
+      "title": "Average",
+      "messages": [
+        "The universe has provided an ordinary Tuesday.",
+        "Your luck is steady: no fireworks, no falling pianos.",
+        "Things are proceeding at a perfectly reasonable pace.",
+        "You found what you were looking for after a little searching.",
+        "Nothing extraordinary happened, and that is perfectly fine.",
+        "Your day is running on standard settings.",
+        "The coin landed on heads. Nobody was surprised.",
+        "Your plans worked out approximately as expected.",
+        "You got a decent seat, but not the best one.",
+        "The weather is doing exactly what the forecast predicted.",
+        "Your internet is working, and that is today's small victory.",
+        "You remembered most of what you needed to do.",
+        "The universe has neither helped nor inconvenienced you today.",
+        "Your luck is as dependable as a regular weekday."
+      ]
+    },
+    {
+      "min": 50,
+      "max": 69,
+      "title": "Fortunate",
+      "messages": [
+        "You found the good seat and the charger nearby.",
+        "A small win has entered the chat.",
+        "The timing worked out better than expected.",
+        "Your favorite snack was still available.",
+        "You guessed correctly on the first try.",
+        "The bus arrived just as you reached the stop.",
+        "You found a little extra time in your schedule.",
+        "Your device had exactly enough battery to finish the task.",
+        "Someone saved you a seat without being asked.",
+        "You remembered something important at the perfect moment.",
+        "The download finished just before you needed the file.",
+        "Your plans went smoothly with only minor adjustments."
+      ]
+    },
+    {
+      "min": 70,
+      "max": 89,
+      "title": "Lucky",
+      "messages": [
+        "The last cookie was still available. A fine omen.",
+        "Your plans found a green light at just the right moment.",
+        "A lucky break is quietly doing its job.",
+        "You found money in a pocket you had forgotten about.",
+        "The answer you needed appeared right when you searched.",
+        "You arrived early without even trying.",
+        "Your favorite song played at the perfect moment.",
+        "The weather held up exactly when you needed it to.",
+        "You picked the right option without overthinking it.",
+        "Someone canceled, leaving you with the perfect opportunity.",
+        "Your computer restarted without losing any work.",
+        "Every little thing seems to be going your way today.",
+        "You avoided a problem you did not even know was coming."
+      ]
+    },
+    {
+      "min": 90,
+      "max": 99,
+      "title": "Extremely Lucky",
+      "messages": [
+        "You picked the shortest line without even trying.",
+        "The exact thing you needed appeared at the perfect moment.",
+        "The universe has put in a very favorable word for you.",
+        "You guessed the answer correctly before seeing the options.",
+        "Your plans aligned so perfectly that it felt scripted.",
+        "You got the last available seat in the entire room.",
+        "The rare item appeared on your first attempt.",
+        "You avoided a delay by choosing a completely random route.",
+        "Your timing deserves its own highlight reel.",
+        "You opened the right page on the first click.",
+        "Three separate things went right in a row. Suspicious.",
+        "The odds were against you, but apparently nobody told luck.",
+        "You received good news when you least expected it."
+      ]
+    },
+    {
+      "min": 100,
+      "max": 100,
+      "title": "Impossible Luck",
+      "messages": [
+        "You found the missing item in the first place you looked.",
+        "Every traffic light turned green; the legends were true.",
+        "This score is so lucky it should buy the next round of snacks.",
+        "You predicted the outcome correctly before anything happened.",
+        "Every random choice you made turned out perfectly.",
+        "You found the rarest item on your very first attempt.",
+        "The universe temporarily switched to easy mode just for you.",
+        "You got every answer right by trusting your instincts.",
+        "Your luck stat has exceeded the maximum permitted by reality.",
+        "The probability calculator has officially requested a second opinion."
+      ]
+    }
+  ]
+}

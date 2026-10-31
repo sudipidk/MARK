@@ -503,6 +503,8 @@ test("bot bootstrap connects MongoDB before registering listeners and logging in
     let countingInitialized = false;
     let economyInitialized = false;
     let funStorageInitialized = false;
+    let channelConfigInitialized = false;
+    let channelEventsRegistered = false;
     let loggedIn = false;
     class MockClient extends EventEmitter {
         constructor(options) {
@@ -554,6 +556,22 @@ test("bot bootstrap connects MongoDB before registering listeners and logging in
                 }
             };
         }
+        if (parent.filename === indexPath && request === "./services/channel-config") {
+            return {
+                initializeChannelConfigStorage: async () => {
+                    assert.equal(databaseConnected, true);
+                    channelConfigInitialized = true;
+                }
+            };
+        }
+        if (parent.filename === indexPath && request === "./services/channel-enforcer") {
+            return {
+                registerChannelControlEvents: registeredClient => {
+                    assert.equal(registeredClient, client);
+                    channelEventsRegistered = true;
+                }
+            };
+        }
         const loaded = originalLoad.call(this, request, parent, isMain);
         return request === "discord.js"
             ? { ...loaded, Client: MockClient }
@@ -576,5 +594,7 @@ test("bot bootstrap connects MongoDB before registering listeners and logging in
     assert.equal(countingInitialized, true);
     assert.equal(economyInitialized, true);
     assert.equal(funStorageInitialized, true);
+    assert.equal(channelConfigInitialized, true);
+    assert.equal(channelEventsRegistered, true);
     assert.equal(loggedIn, true);
 });

@@ -7,13 +7,14 @@ MARK is a general-purpose Discord bot. Commands are loaded from individual JavaS
 1. Install dependencies with `npm install`.
 2. Configure `TOKEN`, `CLIENT_ID`, and `MONGODB_URI` in the environment (or a local `.env` file). On Railway, set these under the bot service's **Variables**; a Railway MongoDB service's `MONGO_URL` variable is also accepted as a connection-string fallback. The URI must point to a MongoDB deployment accessible to the bot. Slash commands deploy globally; optionally set `GUILD_ID` to also register the same commands in a test server for immediate testing. Discord may take time to propagate global command updates.
 3. Enable the **Message Content Intent** and **Server Members Intent** in the Discord Developer Portal. Message content is used by counting; the members intent supports accurate member cache information and active-timeout listings.
-4. Invite MARK with only the permissions needed for the features you use. These include View Channels/Send Messages/Embed Links for embeds and logs; Add Reactions/Manage Messages for counting; Kick Members, Ban Members, and Moderate Members for moderation; and Read Message History for timeout listing.
+4. Invite MARK with only the permissions needed for the features you use. These include View Channels/Send Messages/Embed Links for embeds and logs; Add Reactions/Manage Messages for counting and Channel Control message deletion; Kick Members, Ban Members, and Moderate Members for moderation and configured Channel Control timeouts; and Read Message History for timeout listing. Channel Control administrators need Manage Channels or Administrator. The existing Message Content and Server Members intents are used; enable them in the Discord Developer Portal as documented above.
 5. If you have existing counting data in `data/counting.json`, run `npm run migrate:counting` once before starting the bot. The migration is safe to rerun and preserves any counting records already in MongoDB. Then register commands with `npm run deploy` and run `npm start`. Run `npm test` to execute the automated checks.
 
 ## Phase 1 commands
 
 - Profiles and bot information: `/userinfo [user]`, `/serverinfo`, `/avatar [user]`, `/uptime`
 - Moderation: `/kick`, `/ban`, `/unban`, `/timeout`, `/untimeout`, `/bans`, `/timeoutes`
+- Channel Control: `/channelconfig gif|emoji|media|sticker|text channel:<channel> enabled:<true|false>`, `/channelconfig all|view|disable|reset channel:<channel>`, `/channelconfig delete channel:<channel> enabled:<true|false>`, `/channelconfig timeout channel:<channel> enabled:<true|false> [duration:<duration>]`, and `/channelconfig threshold channel:<channel> violations:<1-1000>`
 - Moderation logs: `/modlog setchannel`, `/modlog disable`, `/modlog config`
 - Suggestions: `/suggest`, `/suggestion setchannel`, `/suggestion disable`, `/suggestion config`, `/suggestion view`, `/suggestion list`, `/suggestion stats`
 - Counting remains available through the existing `/counting-*` commands.
@@ -26,6 +27,8 @@ MARK is a general-purpose Discord bot. Commands are loaded from individual JavaS
 Suggestion IDs and votes persist in JSON. Users may change a pending suggestion vote; each user has one upvote or downvote per suggestion. Approval/denial requires Manage Server or Administrator and a reason via modal. After a decision, voting and further decisions are disabled.
 
 Moderation log entries are emitted for moderation actions MARK performs through its commands. Actions taken manually in Discord or by another bot are not monitored through audit-log events.
+
+Channel Control stores per-channel settings in MongoDB collections `channel_configs` and `channel_violations`. It starts with all content categories allowed, automatic deletion enabled, and timeouts disabled. `/channelconfig disable` pauses enforcement while preserving settings; a content-setting command reactivates enforcement while changing only the selected category, and `/channelconfig all` reactivates the system with all content categories allowed without changing moderation settings. `/channelconfig reset` deletes settings and violation counts. Violations reset one hour after the latest violation by default; timeout durations are limited to 28 days. Exempt roles and users are supported by the stored configuration but do not currently have public management subcommands.
 
 ## Social and fun commands
 
@@ -46,6 +49,8 @@ Fun data uses the shared `MARK` MongoDB database and initializes unique indexes 
 ## Persistent storage
 
 Counting configuration and statistics are stored in the MongoDB `MARK.counting` collection, with one document per Discord server. AFK state and reminders persist in the `MARK.afk` and `MARK.reminders` collections. Reminder deliveries are atomically claimed to prevent duplicate delivery; if the process restarts during a DM attempt, the reminder is marked failed because Discord does not provide a transaction with MongoDB to safely retry that uncertain delivery. Legacy counting JSON is imported with `npm run migrate:counting`. Moderation configuration, suggestions, and other JSON data are written to `data/` by default; set `BOT_DATA_DIR` to a writable persistent directory in production for those features. `COUNTING_DATA_DIR` remains supported as the legacy JSON import directory when `BOT_DATA_DIR` is not set.
+
+Channel Control uses the existing `MARK` MongoDB connection. `channel_configs` has a unique `{ guildId, channelId }` index; `channel_violations` has a unique `{ guildId, channelId, userId }` index and a TTL index on `expiresAt`. The application checks each violation expiry itself as well as using MongoDB TTL cleanup. Deploy `/channelconfig` with the existing `npm run deploy` command; no additional Railway variables, services, or packages are required.
 
 ## Economy
 

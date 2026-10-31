@@ -20,6 +20,8 @@ const { initializeReminderStorage } = require("./services/reminder-storage");
 const { startReminderScheduler } = require("./services/reminder-scheduler");
 const { initializeFunStorage } = require("./services/fun-commands");
 const { registerAfkMessageEvents } = require("./services/afk-message-handler");
+const { initializeChannelConfigStorage } = require("./services/channel-config");
+const { registerChannelControlEvents } = require("./services/channel-enforcer");
 const {
     getStartupConfig,
     formatStartupError
@@ -75,12 +77,15 @@ async function startBot() {
         await initializeReminderStorage();
         startupStage = "fun systems storage initialization";
         await initializeFunStorage();
+        startupStage = "Channel Control storage initialization";
+        await initializeChannelConfigStorage();
 
         // Register bot event handlers
         startupStage = "event registration";
         registerInteractionHandler(client);
         registerCountingEvents(client);
         registerAfkMessageEvents(client);
+        registerChannelControlEvents(client);
 
         // Login to Discord
         startupStage = "Discord login";

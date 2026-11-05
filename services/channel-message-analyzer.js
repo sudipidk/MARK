@@ -7,18 +7,22 @@ const GIF_FILE_PATTERN = /\.(?:gif|gifv)(?:$|[?#])/i;
 const MEDIA_FILE_PATTERN =
     /\.(?:jpe?g|jfif|png|apng|webp|avif|bmp|tiff?|heic|heif|svg|jxl|mp4|mov|webm|m4v|avi|mpeg|mpg|3gp|mkv|wmv|flv|ogv|ts)(?:$|[?#])/i;
 const GIF_PROVIDER_PATTERN = /(?:^|\.)((?:tenor|giphy|gfycat|redgifs)\.com)$/i;
+const KLIPY_GIF_PATH_PATTERN = /\/gifs?(?:\/|$)/i;
 
 function addUrlCategory(url, categories) {
     if (typeof url !== "string" || !url) return null;
     const cleanUrl = url.replace(/[)>.,!?\]}]+$/, "");
-    let hostname = "";
+    let parsedUrl;
     try {
-        hostname = new URL(cleanUrl).hostname.toLowerCase();
+        parsedUrl = new URL(cleanUrl);
     } catch {
         return null;
     }
 
-    if (GIF_FILE_PATTERN.test(cleanUrl) || GIF_PROVIDER_PATTERN.test(hostname)) {
+    const hostname = parsedUrl.hostname.toLowerCase();
+    const isKlipyGif = /(?:^|\.)klipy\.com$/i.test(hostname) &&
+        KLIPY_GIF_PATH_PATTERN.test(parsedUrl.pathname);
+    if (GIF_FILE_PATTERN.test(cleanUrl) || GIF_PROVIDER_PATTERN.test(hostname) || isKlipyGif) {
         categories.gif = true;
         return "gif";
     }

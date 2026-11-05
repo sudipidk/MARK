@@ -72,6 +72,28 @@ test("detects every category present in mixed-content messages", () => {
     assert.equal(categories.text, false);
 });
 
+test("classifies GIF provider links as GIFs instead of text", () => {
+    const gifOnlyConfig = {
+        allowed: { gif: true, emoji: false, media: false, sticker: false, text: false }
+    };
+    for (const url of [
+        "https://tenor.com/view/funny-gif-123",
+        "https://giphy.com/gifs/funny-abc",
+        "https://klipy.com/gifs/funny-abc",
+        "https://www.klipy.com/gif/funny-abc"
+    ]) {
+        const categories = analyzeMessage(message({ content: url }));
+        assert.equal(categories.gif, true, url);
+        assert.equal(categories.text, false, url);
+        assert.equal(hasViolation(gifOnlyConfig, categories), false, url);
+    }
+
+    const klipyPage = analyzeMessage(message({ content: "https://klipy.com/about" }));
+    assert.equal(klipyPage.gif, false);
+    assert.equal(klipyPage.text, true);
+    assert.equal(hasViolation(gifOnlyConfig, klipyPage), true);
+});
+
 test("does not classify ordinary images as GIFs and rejects unknown attachments safely", () => {
     assert.deepEqual(analyzeMessage(message({
         attachments: [{ name: "photo.png", contentType: "image/png" }]

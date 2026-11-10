@@ -505,6 +505,8 @@ test("bot bootstrap connects MongoDB before registering listeners and logging in
     let funStorageInitialized = false;
     let channelConfigInitialized = false;
     let channelEventsRegistered = false;
+    let wordleStorageInitialized = false;
+    let wordleEventsRegistered = false;
     let loggedIn = false;
     class MockClient extends EventEmitter {
         constructor(options) {
@@ -572,6 +574,19 @@ test("bot bootstrap connects MongoDB before registering listeners and logging in
                 }
             };
         }
+        if (parent.filename === indexPath && request === "./services/wordle") {
+            return {
+                initializeWordleStorage: async () => {
+                    assert.equal(databaseConnected, true);
+                    wordleStorageInitialized = true;
+                },
+                registerWordleMessageEvents: registeredClient => {
+                    assert.equal(registeredClient, client);
+                    wordleEventsRegistered = true;
+                },
+                startWordleScheduler: () => {}
+            };
+        }
         const loaded = originalLoad.call(this, request, parent, isMain);
         return request === "discord.js"
             ? { ...loaded, Client: MockClient }
@@ -593,6 +608,8 @@ test("bot bootstrap connects MongoDB before registering listeners and logging in
     assert.equal(client.options.intents.includes(discord.GatewayIntentBits.GuildMembers), true);
     assert.equal(countingInitialized, true);
     assert.equal(economyInitialized, true);
+    assert.equal(wordleStorageInitialized, true);
+    assert.equal(wordleEventsRegistered, true);
     assert.equal(funStorageInitialized, true);
     assert.equal(channelConfigInitialized, true);
     assert.equal(channelEventsRegistered, true);

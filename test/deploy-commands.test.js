@@ -60,6 +60,7 @@ test("all project slash commands are available in the deployment payload", () =>
     assert(names.has("setmoney"));
     assert(names.has("reset"));
     assert(names.has("resetall"));
+    assert(names.has("wordle"));
     for (const name of [
         "dnatest", "gaytest", "iqtest", "lovetest", "rizztest", "lucktest",
         "chatest", "charoll", "characters", "roast", "compliment", "kill", "kiss"

@@ -2597,6 +2597,64 @@ async function runEconomyOperation(guildId, userId, operationId, name, action) {
     return withOperation(guildId, userId, operationId, name, action);
 }
 
+async function creditWordleReward({ guildId, userId, challengeId, amount }) {
+    if (typeof challengeId !== "string" || !challengeId ||
+        typeof userId !== "string" || !userId ||
+        !Number.isSafeInteger(amount) || amount <= 0) {
+        throw new TypeError("A valid Wordle reward, winner, and challenge ID are required.");
+    }
+    await ensureAccount(guildId, userId);
+    const collections = getCollections();
+    const operationId = `wordle:${challengeId}`;
+    const session = getClient().startSession();
+    try {
+        let balanceAfter;
+        await session.withTransaction(async () => {
+            const previous = await collections.transactions.findOne(
+                { _id: operationId },
+                { session }
+            );
+            if (previous) {
+                if (previous.type !== "wordle_reward" ||
+                    previous.actorUserId !== userId ||
+                    previous.amount !== amount) {
+                    throw new Error("The Wordle reward idempotency key is already associated with a different payment.");
+                }
+                balanceAfter = previous.balanceAfter;
+                return;
+            }
+
+            const account = await collections.accounts.findOne({ _id: userId }, { session });
+            if (!account) throw new Error("The winner economy account could not be initialized.");
+            const balanceBefore = Number(account.wallet || 0);
+            assertSafeCredit(balanceBefore, amount);
+            balanceAfter = balanceBefore + amount;
+            assertUpdated(await collections.accounts.updateOne(
+                { _id: userId, wallet: balanceBefore },
+                { $inc: { wallet: amount, "stats.totalEarned": amount } },
+                { session }
+            ), "The winner's wallet changed before the Wordle prize could be credited.");
+            await collections.transactions.insertOne(transactionDocument(
+                operationId,
+                guildId,
+                userId,
+                "wordle_reward",
+                amount,
+                {
+                    currencyIssued: amount,
+                    balanceBefore,
+                    balanceAfter,
+                    createdAt: new Date(),
+                    metadata: { challengeId }
+                }
+            ), { session });
+        });
+        return { operationId, balanceAfter };
+    } finally {
+        await session.endSession();
+    }
+}
+
 module.exports = {
     config,
     catalog,
@@ -2652,5 +2710,6 @@ module.exports = {
     adminWalletChange,
     requestBalanceReset,
     confirmBalanceReset,
-    runEconomyOperation
+    runEconomyOperation,
+    creditWordleReward
 };

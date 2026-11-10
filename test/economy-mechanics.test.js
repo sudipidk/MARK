@@ -261,6 +261,36 @@ test("first interaction grants the starting balance exactly once under concurren
     assert.equal(grants.length, 1);
 });
 
+test("Wordle reward credits use the global economy ledger and are idempotent per challenge", async () => {
+    const database = createMemoryDatabase();
+    const service = loadEconomyWithDatabase(database);
+    const payment = {
+        guildId: "wordle-guild",
+        userId: "winner",
+        challengeId: "challenge-001",
+        amount: 5000
+    };
+
+    await service.creditWordleReward(payment);
+    await service.creditWordleReward(payment);
+
+    const account = database.documents.values().find(document =>
+        document._id === "winner" && document.userId === "winner"
+    );
+    const rewards = database.documents.values().filter(document =>
+        document.type === "wordle_reward"
+    );
+    assert.equal(account.wallet, 6000);
+    assert.equal(account.stats.totalEarned, 6000);
+    assert.equal(rewards.length, 1);
+    assert.equal(rewards[0]._id, "wordle:challenge-001");
+    assert.equal(rewards[0].currencyIssued, 5000);
+    await assert.rejects(
+        service.creditWordleReward({ ...payment, amount: 7500 }),
+        /different payment/
+    );
+});
+
 test("economy accounts, balances, inventory, cooldowns, titles, and history are shared across guilds", async () => {
     const database = createMemoryDatabase();
     const service = loadEconomyWithDatabase(database);

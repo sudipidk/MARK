@@ -23,6 +23,11 @@ const { registerAfkMessageEvents } = require("./services/afk-message-handler");
 const { initializeChannelConfigStorage } = require("./services/channel-config");
 const { registerChannelControlEvents } = require("./services/channel-enforcer");
 const {
+    initializeWordleStorage,
+    registerWordleMessageEvents,
+    startWordleScheduler
+} = require("./services/wordle");
+const {
     getStartupConfig,
     formatStartupError
 } = require("./services/startup-diagnostics");
@@ -52,6 +57,7 @@ for (const file of commandFiles) {
 client.once("ready", () => {
     console.log(`Logged in as ${client.user.tag}`);
     startReminderScheduler(client);
+    startWordleScheduler(client);
     startEconomyScheduler().catch(error => {
         console.error("❌ Economy scheduler failed to start:", { code: error.code || error.name });
     });
@@ -79,6 +85,8 @@ async function startBot() {
         await initializeFunStorage();
         startupStage = "Channel Control storage initialization";
         await initializeChannelConfigStorage();
+        startupStage = "Wordle storage initialization";
+        await initializeWordleStorage();
 
         // Register bot event handlers
         startupStage = "event registration";
@@ -86,6 +94,7 @@ async function startBot() {
         registerCountingEvents(client);
         registerAfkMessageEvents(client);
         registerChannelControlEvents(client);
+        registerWordleMessageEvents(client);
 
         // Login to Discord
         startupStage = "Discord login";

@@ -505,6 +505,8 @@ test("bot bootstrap connects MongoDB before registering listeners and logging in
     let funStorageInitialized = false;
     let channelConfigInitialized = false;
     let channelEventsRegistered = false;
+    let hallStorageInitialized = false;
+    let hallEventsRegistered = false;
     let wordleStorageInitialized = false;
     let wordleEventsRegistered = false;
     let loggedIn = false;
@@ -574,6 +576,18 @@ test("bot bootstrap connects MongoDB before registering listeners and logging in
                 }
             };
         }
+        if (parent.filename === indexPath && request === "./services/hall-of-fame") {
+            return {
+                initializeHallStorage: async () => {
+                    assert.equal(databaseConnected, true);
+                    hallStorageInitialized = true;
+                },
+                registerHallEvents: registeredClient => {
+                    assert.equal(registeredClient, client);
+                    hallEventsRegistered = true;
+                }
+            };
+        }
         if (parent.filename === indexPath && request === "./services/wordle") {
             return {
                 initializeWordleStorage: async () => {
@@ -613,5 +627,9 @@ test("bot bootstrap connects MongoDB before registering listeners and logging in
     assert.equal(funStorageInitialized, true);
     assert.equal(channelConfigInitialized, true);
     assert.equal(channelEventsRegistered, true);
+    assert.equal(hallStorageInitialized, true);
+    assert.equal(hallEventsRegistered, true);
+    assert.equal(client.options.intents.includes(discord.GatewayIntentBits.GuildMessageReactions), true);
+    assert(client.options.partials.includes(discord.Partials.Reaction));
     assert.equal(loggedIn, true);
 });

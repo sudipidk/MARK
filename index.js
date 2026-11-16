@@ -3,7 +3,8 @@ require("dotenv").config();
 const {
     Client,
     GatewayIntentBits,
-    Collection
+    Collection,
+    Partials
 } = require("discord.js");
 
 const fs = require("fs");
@@ -23,6 +24,10 @@ const { registerAfkMessageEvents } = require("./services/afk-message-handler");
 const { initializeChannelConfigStorage } = require("./services/channel-config");
 const { registerChannelControlEvents } = require("./services/channel-enforcer");
 const {
+    initializeHallStorage,
+    registerHallEvents
+} = require("./services/hall-of-fame");
+const {
     initializeWordleStorage,
     registerWordleMessageEvents,
     startWordleScheduler
@@ -36,8 +41,14 @@ const client = new Client({
     intents: [
         GatewayIntentBits.Guilds,
         GatewayIntentBits.GuildMessages,
+        GatewayIntentBits.GuildMessageReactions,
         GatewayIntentBits.MessageContent,
         GatewayIntentBits.GuildMembers
+    ],
+    partials: [
+        Partials.Channel,
+        Partials.Message,
+        Partials.Reaction
     ]
 });
 
@@ -85,6 +96,8 @@ async function startBot() {
         await initializeFunStorage();
         startupStage = "Channel Control storage initialization";
         await initializeChannelConfigStorage();
+        startupStage = "Hall of Fame/ Shame storage initialization";
+        await initializeHallStorage();
         startupStage = "Wordle storage initialization";
         await initializeWordleStorage();
 
@@ -94,6 +107,7 @@ async function startBot() {
         registerCountingEvents(client);
         registerAfkMessageEvents(client);
         registerChannelControlEvents(client);
+        registerHallEvents(client);
         registerWordleMessageEvents(client);
 
         // Login to Discord

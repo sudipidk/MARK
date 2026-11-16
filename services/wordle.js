@@ -14,6 +14,7 @@ const {
     MAXIMUM_CUSTOM_WORD_LENGTH,
     DEFAULT_MAX_ATTEMPTS,
     isValidDictionaryWord,
+    isValidGuess,
     validateAutomaticRewards,
     generateAutomaticAnswer,
     evaluateGuess
@@ -726,23 +727,20 @@ async function handleGuessMessage(client, message) {
     });
     if (!challenge || (challenge.channelId && challenge.channelId !== message.channelId)) return;
     const guess = message.content.trim().toUpperCase();
-    if (!/^[A-Z]+$/.test(guess)) {
-        await sendAssociatedMessage(message.channel, challenge, `<@${message.author.id}> Guess using letters only.`);
+    if (!isValidGuess(guess, challenge.word)) {
+        if (!/^[A-Z]+$/.test(guess)) {
+            await sendAssociatedMessage(message.channel, challenge, `<@${message.author.id}> Guess using letters only.`);
+            return;
+        }
+        if (guess.length !== challenge.word.length) {
+            await sendAssociatedMessage(
+                message.channel,
+                challenge,
+                `<@${message.author.id}> Your guess must contain exactly ${challenge.word.length} letters.`
+            );
+        }
         return;
     }
-    if (guess.length !== challenge.word.length) {
-        await sendAssociatedMessage(
-            message.channel,
-            challenge,
-            `<@${message.author.id}> Your guess must contain exactly ${challenge.word.length} letters.`
-        );
-        return;
-    }
-    if (!isValidDictionaryWord(guess)) {
-        await sendAssociatedMessage(message.channel, challenge, `<@${message.author.id}> That is not in MARK's Wordle dictionary.`);
-        return;
-    }
-
     const player = await addPlayerIfMissing(challenge, message.author.id);
     if (player.status !== "playing") {
         await sendAssociatedMessage(message.channel, challenge, `<@${message.author.id}> You are ${player.status} in this challenge.`);

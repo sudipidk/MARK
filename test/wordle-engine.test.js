@@ -6,6 +6,7 @@ const {
     evaluateGuess,
     validateAutomaticRewards,
     isValidDictionaryWord,
+    isValidGuess,
     validateWordLists
 } = require("../services/wordle-engine");
 const wordleCommand = require("../commands/wordle");
@@ -61,6 +62,13 @@ test("custom dictionary includes one-letter and extended answers", () => {
     assert.equal(isValidDictionaryWord("PYTHON"), true);
     assert.equal(isValidDictionaryWord("responsibility"), true);
     assert.equal(isValidDictionaryWord("not-a-word"), false);
+});
+
+test("guesses accept alphabetic words outside the curated dictionary when lengths match", () => {
+    assert.equal(isValidDictionaryWord("zebra"), false);
+    assert.equal(isValidGuess("ZEBRA", "APPLE"), true);
+    assert.equal(isValidGuess("ZEBRAS", "APPLE"), false);
+    assert.equal(isValidGuess("ZEB-RA", "APPLE"), false);
 });
 
 test("Wordle slash command exposes player, queue, and owner/admin controls", () => {

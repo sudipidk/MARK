@@ -20,6 +20,13 @@ function isValidDictionaryWord(value) {
         dictionary.has(value.toLowerCase());
 }
 
+function isValidGuess(value, answer) {
+    return typeof value === "string" &&
+        typeof answer === "string" &&
+        /^[a-zA-Z]+$/.test(value) &&
+        value.length === answer.length;
+}
+
 function validateAutomaticRewards(rewards = AUTOMATIC_REWARDS) {
     for (const length of [5, 6, 7]) {
         const reward = Number(rewards[length]);
@@ -101,6 +108,7 @@ module.exports = {
     MAXIMUM_CUSTOM_WORD_LENGTH,
     DEFAULT_MAX_ATTEMPTS,
     isValidDictionaryWord,
+    isValidGuess,
     validateAutomaticRewards,
     generateAutomaticAnswer,
     evaluateGuess,

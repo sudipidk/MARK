@@ -20,6 +20,8 @@ module.exports = {
             data.currentCount = 0;
             data.highestCount = 0;
             data.lastUserId = null;
+            data.countedMessageIds = [];
+            data.countedMessages = {};
             data.countsByUser = {};
             data.deletedByUser = {};
         });

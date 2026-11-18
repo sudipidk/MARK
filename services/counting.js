@@ -27,6 +27,8 @@ function createServerData() {
         currentCount: 0,
         highestCount: 0,
         lastUserId: null,
+        countedMessageIds: [],
+        countedMessages: {},
         countsByUser: {},
         deletedByUser: {}
     };
@@ -38,6 +40,12 @@ function cloneServerData(data) {
         ...(data || {}),
         countsByUser: {
             ...((data && data.countsByUser) || {})
+        },
+        countedMessageIds: Array.isArray(data && data.countedMessageIds)
+            ? [...data.countedMessageIds]
+            : [],
+        countedMessages: {
+            ...((data && data.countedMessages) || {})
         },
         deletedByUser: {
             ...((data && data.deletedByUser) || {})

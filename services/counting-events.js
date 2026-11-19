@@ -18,16 +18,19 @@ async function deleteCountingMessage(message) {
     return true;
 }
 
-async function punishCountingViolation(message, data) {
+async function punishCountingViolation(message, data, editedOrDeleted = false) {
     if (data.punishmentMinutes === 0) return false;
 
-    let member;
+    let timedOut = false;
     try {
-        member = message.member || await message.guild.members.fetch(message.author.id);
+        const member = message.member || await message.guild.members.fetch(message.author.id);
         await member.timeout(
             data.punishmentMinutes * 60 * 1000,
-            "Counting channel rule violation: edited or deleted a counting message"
+            editedOrDeleted
+                ? "Counting channel rule violation: edited or deleted a counting message"
+                : "Counting channel rule violation"
         );
+        timedOut = true;
     } catch (error) {
         console.error("Failed to timeout counting violator:", {
             userId: message.author.id,
@@ -35,12 +38,16 @@ async function punishCountingViolation(message, data) {
         });
     }
 
+    if (!editedOrDeleted) return timedOut;
+
     const username = message.author?.username
         || message.author?.tag
         || "User";
     try {
         await message.author.send({
-            content: `${username}, please follow the counting rules, dont edit or delete your message bruh. You have been timeouted in ${message.guild?.name || "the server"} for ${data.punishmentMinutes} minute${data.punishmentMinutes === 1 ? "" : "s"} for editing/deleting your msg man.`,
+            content: timedOut
+                ? `${username}, please follow the counting rules, dont edit or delete your message bruh. You have been timeouted in ${message.guild?.name || "the server"} for ${data.punishmentMinutes} minute${data.punishmentMinutes === 1 ? "" : "s"} for editing/deleting your msg man.`
+                : `${username}, please follow the counting rules and dont edit or delete your counting message. A timeout could not be applied in ${message.guild?.name || "the server"}.`,
             allowedMentions: { parse: [] }
         });
     } catch (error) {
@@ -96,18 +103,31 @@ async function recoverEditedOrDeletedCount(client, message, kind) {
         }
     }
 
+    let recovered = false;
     await updateServerData(message.guildId, serverData => {
+        if (
+            !serverData.countedMessageIds.includes(message.id)
+            && !serverData.countedMessages[message.id]
+        ) {
+            return;
+        }
+
+        recovered = true;
+        serverData.countedMessageIds =
+            serverData.countedMessageIds.filter(id => id !== message.id);
+        delete serverData.countedMessages[message.id];
         serverData.deletedByUser[message.author.id] =
             (serverData.deletedByUser[message.author.id] || 0) + 1;
     });
+    if (!recovered) return;
 
-    await punishCountingViolation(message, data);
+    await punishCountingViolation(message, data, true);
 
     try {
         const channel = message.channel
             || await message.guild.channels.fetch(message.channelId);
         await channel.send({
-            content: String(data.currentCount),
+            content: String(recorded?.value ?? data.currentCount),
             allowedMentions: { parse: [] }
         });
     } catch (error) {
@@ -216,7 +236,7 @@ function registerCountingEvents(client) {
     client.on("messageUpdate", (oldMessage, newMessage) => {
         if (!newMessage.guild || newMessage.author?.bot) return;
 
-        const queueKey = `${newMessage.guildId}:${newMessage.channelId}:edit`;
+        const queueKey = `${newMessage.guildId}:${newMessage.channelId}`;
         const previous = countingQueues.get(queueKey) || Promise.resolve();
         const current = previous
             .then(async () => {
@@ -242,7 +262,7 @@ function registerCountingEvents(client) {
     client.on("messageDelete", message => {
         if (!message.guildId || editRecoveryQueue.has(message.id)) return;
 
-        const queueKey = `${message.guildId}:${message.channelId}:delete`;
+        const queueKey = `${message.guildId}:${message.channelId}`;
         const previous = countingQueues.get(queueKey) || Promise.resolve();
         const current = previous
             .then(() => recoverEditedOrDeletedCount(client, message, "delete"))

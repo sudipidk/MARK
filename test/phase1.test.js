@@ -346,7 +346,11 @@ test("existing counting processing still advances, reacts, rejects duplicates, a
         } finally {
             Module._load = originalLoad;
         }
-        const { processCountingMessage, registerCountingEvents } =
+        const {
+            processCountingMessage,
+            registerCountingEvents,
+            recoverEditedOrDeletedCount
+        } =
             require("../services/counting-events");
         await counting.initializeCountingData();
         assert.equal(counting.getServerData("guild").currentCount, 16);
@@ -395,6 +399,65 @@ test("existing counting processing still advances, reacts, rejects duplicates, a
         assert.equal(rapidSecond.deleted, true);
         assert.equal(counting.getServerData("guild").currentCount, 19);
         assert.equal(documents.get("guild").currentCount, 19);
+
+        await counting.updateServerData("guild", data => {
+            data.currentCount = 1314;
+            data.punishmentMinutes = 5;
+        });
+        const timeouts = [];
+        const directMessages = [];
+        const restoredCounts = [];
+        const createTrackedMessage = (content, id, userId) => ({
+            ...createMessage(content, id),
+            author: {
+                id: userId,
+                username: userId,
+                bot: false,
+                async send(payload) { directMessages.push(payload); }
+            },
+            guild: {
+                name: "Test server",
+                members: { async fetch() { throw new Error("Member should be cached"); } }
+            },
+            member: {
+                async timeout(duration, reason) { timeouts.push({ duration, reason }); }
+            },
+            channel: {
+                async send(payload) { restoredCounts.push(payload.content); }
+            }
+        });
+
+        const nextCount = createTrackedMessage("1315", "count-1315", "counter-1");
+        await processCountingMessage(nextCount);
+        assert.equal(nextCount.deleted, false);
+        assert.equal(nextCount.reactions[0], String.fromCodePoint(0x2705));
+        assert.equal(counting.getServerData("guild").currentCount, 1315);
+
+        const duplicateCount = createTrackedMessage("1315", "duplicate-1315", "counter-2");
+        await processCountingMessage(duplicateCount);
+        assert.equal(duplicateCount.deleted, true);
+        assert.equal(timeouts.length, 1);
+        assert.equal(directMessages.length, 0);
+
+        await recoverEditedOrDeletedCount(
+            {},
+            createTrackedMessage("hello", "count-1315", "counter-1"),
+            "edit"
+        );
+        assert.deepEqual(restoredCounts, ["1315"]);
+        assert.equal(directMessages.length, 1);
+        assert.match(directMessages[0].content, /timeouted in Test server for 5 minutes/);
+
+        const count1316 = createTrackedMessage("1316", "count-1316", "counter-3");
+        await processCountingMessage(count1316);
+        await recoverEditedOrDeletedCount({}, count1316, "delete");
+        assert.deepEqual(restoredCounts, ["1315", "1316"]);
+        assert.equal(directMessages.length, 2);
+        assert.equal(counting.getServerData("guild").currentCount, 1316);
+
+        await recoverEditedOrDeletedCount({}, count1316, "delete");
+        assert.deepEqual(restoredCounts, ["1315", "1316"]);
+        assert.equal(directMessages.length, 2);
     } finally {
         if (previousBotDataDir === undefined) delete process.env.BOT_DATA_DIR;
         else process.env.BOT_DATA_DIR = previousBotDataDir;
